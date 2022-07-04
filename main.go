@@ -34,6 +34,7 @@ func worker(wg *sync.WaitGroup, track TrackInfo) {
 	defer wg.Done()
 	trackName := CreateOutputFileName(track.Artists, track.Title)
 	outPath := filepath.Join(outDir, trackName)
+	printInfo(fmt.Sprintf("starting: %s\n", outPath))
 	err := Download(downloadExecutable, outFmt, track.URL)
 	if err != nil {
 		fmt.Println(track)
@@ -46,7 +47,7 @@ func worker(wg *sync.WaitGroup, track TrackInfo) {
 	downloadedPath = ChangeExtension(downloadedPath, outFmt)
 	err = Move(downloadedPath, outPath)
 	if err == nil {
-		printInfo(fmt.Sprintf("successfully downloaded: %s\n", outPath))
+		printInfo(fmt.Sprintf("finished: %s\n", outPath))
 	}
 }
 
