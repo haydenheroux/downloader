@@ -31,22 +31,18 @@ func Chunkify(lines []TrackInfo, size int) [][]TrackInfo {
 	return chunks
 }
 
-func toDownloadURL(urlStub string) string {
-	u, err := url.Parse(urlStub)
+func toDownloadURL(stub string) string {
+	u, err := url.Parse(stub)
 	isURL := err == nil && u.Scheme != "" && u.Host != ""
 	if isURL {
 		// Since it already is a URL, just return it
-		return urlStub
+		return stub
 	}
-	return "https://www.youtube.com/watch?v=" + urlStub
+	return "https://www.youtube.com/watch?v=" + stub
 }
 
 func GetTrack(line string) (TrackInfo, error) {
-	track := TrackInfo{
-		URL:     "",
-		Artists: "",
-		Title:   "",
-	}
+	track := TrackInfo{}
 	fields := strings.Split(line, "\t")
 	if len(fields) != 3 {
 		return track, errors.New("not enough fields in line")

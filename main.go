@@ -85,9 +85,7 @@ func main() {
 		}
 		trackName := CreateOutputFileName(track.Artists, track.Title)
 		outPath := filepath.Join(outDir, trackName)
-		if Exists(outPath) {
-			printInfo(fmt.Sprintf("%s: already exists, not downloading\n", outPath))
-		} else {
+		if !Exists(outPath) {
 			tracks = append(tracks, track)
 		}
 	}
