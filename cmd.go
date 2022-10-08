@@ -21,4 +21,3 @@ func Move(source string, destination string) error {
 	err := os.Rename(source, destination)
 	return err
 }
-

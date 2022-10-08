@@ -2,9 +2,9 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
 	"strings"
-  "fmt"
 )
 
 type Track struct {
@@ -20,22 +20,22 @@ func isURL(s string) bool {
 
 func toURL(stub string) string {
 	if isURL(stub) == false {
-    // Assume the stub is a YouTube ID if it is not a URL
-  	return "https://www.youtube.com/watch?v=" + stub
+		// Assume the stub is a YouTube ID if it is not a URL
+		return "https://www.youtube.com/watch?v=" + stub
 	}
 	return stub
 }
 
 func TrackFrom(s string) (Track, error) {
 	fields := strings.Split(s, "\t")
-  fmt.Println(fields)
+	fmt.Println(fields)
 	if len(fields) == 3 {
-	  track := Track{
-      URL: toURL(fields[0]),
-      Artists: fields[1],
-      Title: fields[2],
-    }
-    return track, nil
+		track := Track{
+			URL:     toURL(fields[0]),
+			Artists: fields[1],
+			Title:   fields[2],
+		}
+		return track, nil
 	}
 	return Track{}, errors.New("not enough fields in line")
 }

@@ -10,7 +10,7 @@ import (
 
 var (
 	DOWNLOAD_EXECUTABLE string
-	INPUT          string
+	INPUT               string
 	OUT_DIR             string
 	OUT_FMT             string
 )
@@ -35,7 +35,7 @@ func download(track Track) error {
 	trackName := GetOutputFile(track.Artists, track.Title)
 	outPath := filepath.Join(OUT_DIR, trackName)
 	err = Move(downloadedPath, outPath)
-  return err
+	return err
 }
 
 func printError(scope string, err error) {
@@ -57,15 +57,15 @@ func main() {
 
 	for lineNum, line := range GetLines(INPUT) {
 		track, _ := TrackFrom(line)
-    fmt.Println(track)
-    trackName := GetOutputFile(track.Artists, track.Title)
-    outPath := filepath.Join(OUT_DIR, trackName)
+		fmt.Println(track)
+		trackName := GetOutputFile(track.Artists, track.Title)
+		outPath := filepath.Join(OUT_DIR, trackName)
 		if Exists(outPath) == false {
-      err := download(track)
-      if err != nil {
-        scope := fmt.Sprintf("%s:%d:%s", INPUT, lineNum, outPath)
-        printError(scope, err)
-      }
+			err := download(track)
+			if err != nil {
+				scope := fmt.Sprintf("%s:%d:%s", INPUT, lineNum, outPath)
+				printError(scope, err)
+			}
 		}
 	}
 }
