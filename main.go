@@ -6,55 +6,36 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
-	"sync"
 )
 
 var (
-	downloadExecutable string
-	goRoutineCount     int
-	inputPath          string
-	isSilent           bool
-	outDir             string
-	outExt             bool
-	outFmt             string
+	DOWNLOAD_EXECUTABLE string
+	INPUT          string
+	OUT_DIR             string
+	OUT_FMT             string
 )
 
 func init() {
-	flag.StringVar(&downloadExecutable, "x", "yt-dlp", "youtube-dl executable, yt-dlp supported")
-	flag.IntVar(&goRoutineCount, "n", runtime.NumCPU()+2, "maximum number of goroutines")
-	flag.StringVar(&inputPath, "i", "", "input file")
-	flag.BoolVar(&isSilent, "s", true, "skip printing status messages")
-	flag.StringVar(&outDir, "o", "out", "output directory")
-	flag.BoolVar(&outExt, "e", true, "append audio format to output filename")
-	flag.StringVar(&outFmt, "f", "mp3", "output audio format")
+	flag.StringVar(&DOWNLOAD_EXECUTABLE, "x", "yt-dlp", "youtube-dl executable, yt-dlp supported")
+	flag.StringVar(&INPUT, "i", "", "input file")
+	flag.StringVar(&OUT_DIR, "o", "out", "output directory")
+	flag.StringVar(&OUT_FMT, "f", "mp3", "output audio format")
 }
 
-func worker(wg *sync.WaitGroup, track TrackInfo) {
-	defer wg.Done()
-	trackName := CreateOutputFileName(track.Artists, track.Title)
-	outPath := filepath.Join(outDir, trackName)
-	printInfo(fmt.Sprintf("starting: %s\n", outPath))
-	err := Download(downloadExecutable, outFmt, track.URL)
+func download(track Track) error {
+	err := Download(DOWNLOAD_EXECUTABLE, OUT_FMT, track.URL)
 	if err != nil {
-		fmt.Println(track)
-		return
+		return err
 	}
-	downloadedPath, err := FindOutputFileName(downloadExecutable, track.URL)
+	downloadedPath, err := GetDownloadedFilePath(DOWNLOAD_EXECUTABLE, track.URL)
 	if err != nil {
-		return
+		return err
 	}
-	downloadedPath = ChangeExtension(downloadedPath, outFmt)
+	downloadedPath = ChangeExtension(downloadedPath, OUT_FMT)
+	trackName := GetOutputFile(track.Artists, track.Title)
+	outPath := filepath.Join(OUT_DIR, trackName)
 	err = Move(downloadedPath, outPath)
-	if err == nil {
-		printInfo(fmt.Sprintf("finished: %s\n", outPath))
-	}
-}
-
-func printInfo(msg string) {
-	if !isSilent {
-		fmt.Printf(msg)
-	}
+  return err
 }
 
 func printError(scope string, err error) {
@@ -64,38 +45,27 @@ func printError(scope string, err error) {
 func main() {
 	flag.Parse()
 
-	if inputPath == "" {
+	if INPUT == "" {
 		printError("args", errors.New("did not specify an input file"))
 		os.Exit(1)
 	}
 
-	if err := CreateDir(outDir); err != nil {
+	if err := CreateDir(OUT_DIR); err != nil {
 		printError("os.Mkdir", err)
 		os.Exit(1)
 	}
 
-	var wg sync.WaitGroup
-
-	lines := GetLines(inputPath)
-	var tracks []TrackInfo
-	for _, line := range lines {
-		track, err := GetTrack(line)
-		if err != nil {
-			printError("GetTrack", err)
-		}
-		trackName := CreateOutputFileName(track.Artists, track.Title)
-		outPath := filepath.Join(outDir, trackName)
-		if !Exists(outPath) {
-			tracks = append(tracks, track)
+	for lineNum, line := range GetLines(INPUT) {
+		track, _ := TrackFrom(line)
+    fmt.Println(track)
+    trackName := GetOutputFile(track.Artists, track.Title)
+    outPath := filepath.Join(OUT_DIR, trackName)
+		if Exists(outPath) == false {
+      err := download(track)
+      if err != nil {
+        scope := fmt.Sprintf("%s:%d:%s", INPUT, lineNum, outPath)
+        printError(scope, err)
+      }
 		}
 	}
-	chunks := Chunkify(tracks, goRoutineCount)
-	for _, chunk := range chunks {
-		for _, track := range chunk {
-			wg.Add(1)
-			go worker(&wg, track)
-		}
-		wg.Wait()
-	}
-
 }

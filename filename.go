@@ -23,7 +23,7 @@ func clean(str string) string {
 	return temp
 }
 
-func CreateOutputFileName(artistsDirty string, trackNameDirty string) string {
+func GetOutputFile(artistsDirty string, trackNameDirty string) string {
 	var trackName string
 
 	artists := strings.Split(artistsDirty, "&")

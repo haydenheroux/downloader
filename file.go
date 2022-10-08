@@ -24,7 +24,7 @@ func GetLines(filePath string) []string {
 	return lines
 }
 
-func Exists(filePath string) bool {
+func DoesExist(filePath string) bool {
 	if _, err := os.Stat(filePath); err == nil {
 		return true
 	}
@@ -32,9 +32,8 @@ func Exists(filePath string) bool {
 }
 
 func CreateDir(dir string) error {
-	if !Exists(dir) {
-		return os.Mkdir(outDir, 0777)
+	if DoesExist(dir) == false {
+		return os.Mkdir(dir, 0777)
 	}
-	// already exists, no need to create error
 	return nil
 }
