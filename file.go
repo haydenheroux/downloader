@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func GetLines(filePath string) []string {
+func Lines(filePath string) []string {
 	var lines []string
 
 	file, err := os.Open(filePath)
@@ -24,16 +24,15 @@ func GetLines(filePath string) []string {
 	return lines
 }
 
-func DoesExist(filePath string) bool {
-	if _, err := os.Stat(filePath); err == nil {
-		return true
-	}
-	return false
+func Exists(filePath string) bool {
+	_, err := os.Stat(filePath)
+	return err == nil
 }
 
-func CreateDir(dir string) error {
-	if DoesExist(dir) == false {
-		return os.Mkdir(dir, 0777)
+func CreateDir(dirPath string) error {
+	if Exists(dirPath) {
+		return nil
 	}
-	return nil
+
+	return os.Mkdir(dirPath, 0777)
 }

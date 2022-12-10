@@ -55,7 +55,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	for lineNum, line := range GetLines(INPUT) {
+	for lineNum, line := range Lines(INPUT) {
 		track, _ := TrackFrom(line)
 		fmt.Println(track)
 		trackName := GetOutputFile(track.Artists, track.Title)

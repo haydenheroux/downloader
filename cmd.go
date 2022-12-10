@@ -6,7 +6,7 @@ import (
 )
 
 func Download(exe string, outFmt string, url string) error {
-	// Maybe add options which increase the chances of successful download?
+	// TOOD: Add options which increase the chances of successful download?
 	dlCmd := exec.Command(exe, "-x", "--audio-format", outFmt, url)
 	return dlCmd.Run()
 }
