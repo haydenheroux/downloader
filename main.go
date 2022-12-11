@@ -32,8 +32,8 @@ func download(track Track) error {
 		return err
 	}
 	downloadedPath = ChangeExtension(downloadedPath, OUT_FMT)
-	trackName := GetOutputFile(track.Artists, track.Title)
-	outPath := filepath.Join(OUT_DIR, trackName)
+	output := OutputFilename(track.Artists, track.Title)
+	outPath := filepath.Join(OUT_DIR, output)
 	err = Move(downloadedPath, outPath)
 	return err
 }
@@ -58,8 +58,8 @@ func main() {
 	for lineNum, line := range Lines(INPUT) {
 		track, _ := TrackFrom(line)
 		fmt.Println(track)
-		trackName := GetOutputFile(track.Artists, track.Title)
-		outPath := filepath.Join(OUT_DIR, trackName)
+		output := OutputFilename(track.Artists, track.Title)
+		outPath := filepath.Join(OUT_DIR, output)
 		if Exists(outPath) == false {
 			err := download(track)
 			if err != nil {

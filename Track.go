@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"net/url"
 	"strings"
 )
@@ -19,16 +18,15 @@ func isURL(s string) bool {
 }
 
 func toURL(stub string) string {
-	if isURL(stub) == false {
-		// Assume the stub is a YouTube ID if it is not a URL
-		return "https://www.youtube.com/watch?v=" + stub
+	if isURL(stub) {
+		return stub
 	}
-	return stub
+	// Assume the stub is a YouTube ID if it is not a URL
+	return "https://www.youtube.com/watch?v=" + stub
 }
 
 func TrackFrom(s string) (Track, error) {
 	fields := strings.Split(s, "\t")
-	fmt.Println(fields)
 	if len(fields) == 3 {
 		track := Track{
 			URL:     toURL(fields[0]),

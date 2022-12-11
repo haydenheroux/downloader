@@ -1,40 +1,18 @@
 package main
 
 import (
-	"regexp"
 	"strings"
 )
 
-func clean(str string) string {
-	reg, err := regexp.Compile("[&\\'+\\(\\)\\[\\]\\.\\-]+")
-	if err != nil {
-		printError("regexp.Compile", err)
-	}
-	temp := str
-	// Remove padding spaces
-	temp = strings.Trim(temp, " \n")
-	// Spaces -> underscores
-	temp = strings.ReplaceAll(temp, " ", "_")
-	// Dash -> underscores
-	// Remove "bad" characters
-	temp = reg.ReplaceAllString(temp, "")
-	// Lowercase
-	temp = strings.ToLower(temp)
-	return temp
-}
-
-func GetOutputFile(artistsDirty string, trackNameDirty string) string {
-	var trackName string
-
+func OutputFilename(artistsDirty string, trackNameDirty string) string {
 	artists := strings.Split(artistsDirty, "&")
-	for index, artist := range artists {
-		artists[index] = clean(artist)
-	}
-	artistString := strings.Join(artists, "+")
+	artistString := CleanSlice(artists)
 
-	trackName = clean(trackNameDirty)
+	trackString := Clean(trackNameDirty)
 
-	return artistString + "-" + trackName
+	artistTrack := map[string]string{artistString: trackString}
+
+	return CleanMap(artistTrack)
 }
 
 func ChangeExtension(fileName string, extension string) string {
