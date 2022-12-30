@@ -2,17 +2,19 @@ package main
 
 import (
 	"strings"
+
+	"github.com/haydenheroux/cleanstring"
 )
 
 func OutputFilename(artistsDirty string, trackNameDirty string) string {
 	artists := strings.Split(artistsDirty, "&")
-	artistString := CleanSlice(artists)
+	artistString := cleanstring.CleanSlice(artists)
 
-	trackString := Clean(trackNameDirty)
+	trackString := cleanstring.Clean(trackNameDirty)
 
 	artistTrack := map[string]string{artistString: trackString}
 
-	return CleanMap(artistTrack)
+	return cleanstring.CleanMap(artistTrack)
 }
 
 func ChangeExtension(fileName string, extension string) string {

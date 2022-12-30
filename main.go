@@ -27,14 +27,14 @@ func download(track Track) error {
 	if err != nil {
 		return err
 	}
-	downloadedPath, err := GetDownloadedFilePath(DOWNLOAD_EXECUTABLE, track.URL)
+	downloadedFilename, err := DownloadedFilename(DOWNLOAD_EXECUTABLE, track.URL)
 	if err != nil {
 		return err
 	}
-	downloadedPath = ChangeExtension(downloadedPath, OUT_FMT)
+	downloadedFilename = ChangeExtension(downloadedFilename, OUT_FMT)
 	output := OutputFilename(track.Artists, track.Title)
 	outPath := filepath.Join(OUT_DIR, output)
-	err = Move(downloadedPath, outPath)
+	err = Move(downloadedFilename, outPath)
 	return err
 }
 
@@ -42,11 +42,15 @@ func printError(scope string, err error) {
 	fmt.Fprintf(os.Stderr, "%s: %v\n", scope, err)
 }
 
+func usage() {
+	printError("usage", errors.New("music_dl -i file -o dir"))
+}
+
 func main() {
 	flag.Parse()
 
 	if INPUT == "" {
-		printError("args", errors.New("did not specify an input file"))
+		usage()
 		os.Exit(1)
 	}
 
@@ -57,7 +61,6 @@ func main() {
 
 	for lineNum, line := range Lines(INPUT) {
 		track, _ := TrackFrom(line)
-		fmt.Println(track)
 		output := OutputFilename(track.Artists, track.Title)
 		outPath := filepath.Join(OUT_DIR, output)
 		if Exists(outPath) == false {
