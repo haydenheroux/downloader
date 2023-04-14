@@ -18,8 +18,8 @@ type Downloader interface {
 }
 
 type YoutubeDLCompatibleDownloader struct {
-	Executable string
-	Format string
+	Executable      string
+	Format          string
 	FormatExtension string
 }
 
@@ -28,7 +28,7 @@ func (ytdl YoutubeDLCompatibleDownloader) Download(track TrackInfo) error {
 
 	if err := dlCmd.Run(); err != nil {
 		return errors.New("Download failed")
-	} 
+	}
 
 	return nil
 }

@@ -26,7 +26,7 @@ func toURL(s string) string {
 	return "https://www.youtube.com/watch?v=" + s
 }
 
-func Parse(s string) (TrackInfo, error) {
+func parse(s string) (TrackInfo, error) {
 	fields := strings.Split(s, "\t")
 	if len(fields) == 3 {
 		track := TrackInfo{

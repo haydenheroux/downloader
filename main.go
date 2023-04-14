@@ -2,9 +2,9 @@ package main
 
 import (
 	"flag"
+	"log"
 	"os"
 	"path/filepath"
-	"log"
 )
 
 var (
@@ -51,8 +51,8 @@ func main() {
 	}
 
 	downloader := YoutubeDLCompatibleDownloader{
-		Executable: DOWNLOAD_EXECUTABLE,
-		Format: OUT_FMT,
+		Executable:      DOWNLOAD_EXECUTABLE,
+		Format:          OUT_FMT,
 		FormatExtension: OUT_FMT,
 	}
 
