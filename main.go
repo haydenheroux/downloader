@@ -1,11 +1,10 @@
 package main
 
 import (
-	"errors"
 	"flag"
-	"fmt"
 	"os"
 	"path/filepath"
+	"log"
 )
 
 var (
@@ -22,34 +21,33 @@ func init() {
 	flag.StringVar(&OUT_FMT, "f", "mp3", "output audio format")
 }
 
-func printError(scope string, err error) {
-	fmt.Fprintf(os.Stderr, "%s: %v\n", scope, err)
-}
-
-func usage() {
-	printError("usage", errors.New("music_dl -i file -o dir"))
-}
-
-
-func downloadTo(d Downloader, t TrackInfo, directory string) error {
-	err := d.Download(t)
+func downloadTo(downloader Downloader, track TrackInfo, directory string) (string, error) {
+	err := downloader.Download(track)
 	if err != nil {
-		return err
+		return "", err
 	}
-	filename, err := d.GetFilename(t)
+
+	filename, err := downloader.GetFilename(track)
 	if err != nil {
-		return err
+		return "", err
 	}
-	destination := filepath.Join(directory, filename)
-	return os.Rename(filename, destination)
+
+	destination := filepath.Join(directory, track.String())
+	err = os.Rename(filename, destination)
+	if err != nil {
+		return "", err
+	}
+
+	return destination, nil
 }
 
 func main() {
 	flag.Parse()
 
+	logger := log.New(os.Stderr, "music_dl: ", 0)
+
 	if INPUT == "" {
-		usage()
-		os.Exit(1)
+		logger.Fatalln("Usage: music_dl -i INPUT_FILE -o OUTPUT_DIRECTORY")
 	}
 
 	downloader := YoutubeDLCompatibleDownloader{
@@ -58,31 +56,30 @@ func main() {
 		FormatExtension: OUT_FMT,
 	}
 
-	if err := CreateDir(OUT_DIR); err != nil {
-		printError("os.Mkdir", err)
-		os.Exit(1)
+	if err := mkdir(OUT_DIR); err != nil {
+		logger.Fatalln("Creating directory")
 	}
 
-	lines := Lines(INPUT)
-
 	tracks := []TrackInfo{}
-	
+
+	lines, _ := linesIn(INPUT)
+
 	for n, line := range lines {
 		track, _ := Parse(line)
-		fmt.Fprintf(os.Stderr, "Successfully parsed line %d: %s\n", n, track)
+		logger.Printf("Successfully parsed line %d: %s\n", n, track)
 		tracks = append(tracks, track)
 	}
 
 	for _, track := range tracks {
 		destination := filepath.Join(OUT_DIR, track.String())
-		if Exists(destination) {
-			fmt.Fprintf(os.Stderr, "%s exists; skipping %s\n", destination, track)
+		if exists(destination) {
+			logger.Printf("Skipping %s because %s already exists\n", track, destination)
 			continue
 		}
-		fmt.Println(track)
-		err := downloadTo(downloader, track, OUT_DIR)
+		destination, err := downloadTo(downloader, track, OUT_DIR)
 		if err != nil {
-			printError(destination, err)
+			logger.Fatalf("Failed to download %s because %v\n", destination, err)
 		}
+		logger.Printf("Successfully downloaded %s\n", destination)
 	}
 }

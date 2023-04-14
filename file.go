@@ -5,34 +5,35 @@ import (
 	"os"
 )
 
-func Lines(filePath string) []string {
-	var lines []string
+func linesIn(filename string) ([]string, error) {
+	lines := []string{}
 
-	file, err := os.Open(filePath)
-	defer file.Close()
+	file, err := os.Open(filename)
 	if err != nil {
-		panic("os.Open")
+		return lines, err
 	}
+
+	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
 
 	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
+		line := scanner.Text()
+		lines = append(lines, line)
 	}
 
-	return lines
+	return lines, nil
 }
 
-func Exists(filePath string) bool {
-	_, err := os.Stat(filePath)
+func exists(filename string) bool {
+	_, err := os.Stat(filename)
 	return err == nil
 }
 
-func CreateDir(dirPath string) error {
-	if Exists(dirPath) {
+func mkdir(directory string) error {
+	if exists(directory) {
 		return nil
 	}
 
-	return os.Mkdir(dirPath, 0777)
+	return os.Mkdir(directory, 0777)
 }

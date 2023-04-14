@@ -3,7 +3,14 @@ package main
 import (
 	"errors"
 	"os/exec"
+	"strings"
 )
+
+func changeExtension(filename string, extension string) string {
+	temp := strings.Split(filename, ".")
+	str := strings.Join(temp[:len(temp)-1], ".")
+	return str + "." + extension
+}
 
 type Downloader interface {
 	Download(TrackInfo) error
@@ -16,8 +23,8 @@ type YoutubeDLCompatibleDownloader struct {
 	FormatExtension string
 }
 
-func (ytdl YoutubeDLCompatibleDownloader) Download(t TrackInfo) error {
-	dlCmd := exec.Command(ytdl.Executable, "-x", "--audio-format", ytdl.Format, t.URL)
+func (ytdl YoutubeDLCompatibleDownloader) Download(track TrackInfo) error {
+	dlCmd := exec.Command(ytdl.Executable, "-x", "--audio-format", ytdl.Format, track.URL)
 
 	if err := dlCmd.Run(); err != nil {
 		return errors.New("Download failed")
@@ -26,8 +33,8 @@ func (ytdl YoutubeDLCompatibleDownloader) Download(t TrackInfo) error {
 	return nil
 }
 
-func (ytdl YoutubeDLCompatibleDownloader) GetFilename(t TrackInfo) (string, error) {
-	fileNameCmd := exec.Command(ytdl.Executable, "--get-filename", t.URL)
+func (ytdl YoutubeDLCompatibleDownloader) GetFilename(track TrackInfo) (string, error) {
+	fileNameCmd := exec.Command(ytdl.Executable, "--get-filename", track.URL)
 	output, err := fileNameCmd.Output()
 
 	filename := string(output[:])
@@ -36,7 +43,7 @@ func (ytdl YoutubeDLCompatibleDownloader) GetFilename(t TrackInfo) (string, erro
 		return filename, errors.New("Could not get filename")
 	}
 
-	filename = ChangeExtension(filename, ytdl.FormatExtension)
+	filename = changeExtension(filename, ytdl.FormatExtension)
 
 	return filename, nil
 }
