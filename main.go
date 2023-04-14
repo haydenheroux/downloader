@@ -22,22 +22,6 @@ func init() {
 	flag.StringVar(&OUT_FMT, "f", "mp3", "output audio format")
 }
 
-func download(track TrackInfo) error {
-	fmt.Fprintf(os.Stderr, "Downloading %s\n", track)
-	err := Download(DOWNLOAD_EXECUTABLE, OUT_FMT, track.URL)
-	if err != nil {
-		return err
-	}
-	downloadedFilename, err := DownloadedFilename(DOWNLOAD_EXECUTABLE, track.URL)
-	if err != nil {
-		return err
-	}
-	downloadedFilename = ChangeExtension(downloadedFilename, OUT_FMT)
-	destination := filepath.Join(OUT_DIR, track.String())
-	err = Move(downloadedFilename, destination)
-	return err
-}
-
 func printError(scope string, err error) {
 	fmt.Fprintf(os.Stderr, "%s: %v\n", scope, err)
 }
@@ -46,12 +30,32 @@ func usage() {
 	printError("usage", errors.New("music_dl -i file -o dir"))
 }
 
+
+func downloadTo(d Downloader, t TrackInfo, directory string) error {
+	err := d.Download(t)
+	if err != nil {
+		return err
+	}
+	filename, err := d.GetFilename(t)
+	if err != nil {
+		return err
+	}
+	destination := filepath.Join(directory, filename)
+	return os.Rename(filename, destination)
+}
+
 func main() {
 	flag.Parse()
 
 	if INPUT == "" {
 		usage()
 		os.Exit(1)
+	}
+
+	downloader := YoutubeDLCompatibleDownloader{
+		Executable: DOWNLOAD_EXECUTABLE,
+		Format: OUT_FMT,
+		FormatExtension: OUT_FMT,
 	}
 
 	if err := CreateDir(OUT_DIR); err != nil {
@@ -75,7 +79,8 @@ func main() {
 			fmt.Fprintf(os.Stderr, "%s exists; skipping %s\n", destination, track)
 			continue
 		}
-		err := download(track)
+		fmt.Println(track)
+		err := downloadTo(downloader, track, OUT_DIR)
 		if err != nil {
 			printError(destination, err)
 		}
