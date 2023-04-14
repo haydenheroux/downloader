@@ -22,7 +22,8 @@ func init() {
 	flag.StringVar(&OUT_FMT, "f", "mp3", "output audio format")
 }
 
-func download(track Track) error {
+func download(track TrackInfo) error {
+	fmt.Fprintf(os.Stderr, "Downloading %s\n", track)
 	err := Download(DOWNLOAD_EXECUTABLE, OUT_FMT, track.URL)
 	if err != nil {
 		return err
@@ -32,9 +33,8 @@ func download(track Track) error {
 		return err
 	}
 	downloadedFilename = ChangeExtension(downloadedFilename, OUT_FMT)
-	output := OutputFilename(track.Artists, track.Title)
-	outPath := filepath.Join(OUT_DIR, output)
-	err = Move(downloadedFilename, outPath)
+	destination := filepath.Join(OUT_DIR, track.String())
+	err = Move(downloadedFilename, destination)
 	return err
 }
 
@@ -59,16 +59,25 @@ func main() {
 		os.Exit(1)
 	}
 
-	for lineNum, line := range Lines(INPUT) {
-		track, _ := TrackFrom(line)
-		output := OutputFilename(track.Artists, track.Title)
-		outPath := filepath.Join(OUT_DIR, output)
-		if Exists(outPath) == false {
-			err := download(track)
-			if err != nil {
-				scope := fmt.Sprintf("%s:%d:%s", INPUT, lineNum, outPath)
-				printError(scope, err)
-			}
+	lines := Lines(INPUT)
+
+	tracks := []TrackInfo{}
+	
+	for n, line := range lines {
+		track, _ := Parse(line)
+		fmt.Fprintf(os.Stderr, "Successfully parsed line %d: %s\n", n, track)
+		tracks = append(tracks, track)
+	}
+
+	for _, track := range tracks {
+		destination := filepath.Join(OUT_DIR, track.String())
+		if Exists(destination) {
+			fmt.Fprintf(os.Stderr, "%s exists; skipping %s\n", destination, track)
+			continue
+		}
+		err := download(track)
+		if err != nil {
+			printError(destination, err)
 		}
 	}
 }
