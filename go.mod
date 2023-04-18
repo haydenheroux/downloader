@@ -1,4 +1,4 @@
-module haydenheroux.xyz/music_dl
+module haydenheroux/music_dl
 
 go 1.18
 
