@@ -1,8 +1,8 @@
 package main
 
 import (
-	"music_dl/track"
 	"music_dl/downloader"
+	"music_dl/track"
 
 	"flag"
 	"log"
@@ -12,10 +12,10 @@ import (
 
 var (
 	downloaderExecutable string
-	outputExtension             string
-	outputFormat             string
-	inputFile               string
-	outputDirectory             string
+	outputExtension      string
+	outputFormat         string
+	inputFile            string
+	outputDirectory      string
 )
 
 func init() {
@@ -24,21 +24,6 @@ func init() {
 	flag.StringVar(&outputFormat, "f", "mp3", "Output audio format. Used for specifying to the downloader which format to download.")
 	flag.StringVar(&inputFile, "i", "", "Input file. The file must contain lines with three tab-separated (TSV) fields, in this order: URL Artist(s) Title. Multiple artists can be included by delimiting with ampersands (&).")
 	flag.StringVar(&outputDirectory, "o", "", "Output directory. If the directory does not exist, it will be created. If this option is not specified, the current working directory is used.")
-}
-
-func downloadTo(downloader downloader.Downloader, track track.Track, directory string) error {
-	err := downloader.Download(track)
-	if err != nil {
-		return err
-	}
-
-	filename, err := downloader.GetFilename(track)
-	if err != nil {
-		return err
-	}
-
-	destination := filepath.Join(directory, track.String())
-	return os.Rename(filename, destination)
 }
 
 func main() {
