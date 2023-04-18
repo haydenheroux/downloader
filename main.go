@@ -23,24 +23,19 @@ func init() {
 	flag.StringVar(&outputDirectory, "o", "", "Output directory. If the directory does not exist, it will be created. If this option is not specified, the current working directory is used.")
 }
 
-func downloadTo(downloader Downloader, track TrackInfo, directory string) (string, error) {
+func downloadTo(downloader Downloader, track TrackInfo, directory string) error {
 	err := downloader.Download(track)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	filename, err := downloader.GetFilename(track)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	destination := filepath.Join(directory, track.String())
-	err = os.Rename(filename, destination)
-	if err != nil {
-		return "", err
-	}
-
-	return destination, nil
+	return os.Rename(filename, destination)
 }
 
 func main() {
@@ -78,7 +73,7 @@ func main() {
 			logger.Printf("Skipping %s because %s already exists\n", track, destination)
 			continue
 		}
-		destination, err := downloadTo(downloader, track, outputDirectory)
+		err := downloadTo(downloader, track, outputDirectory)
 		if err != nil {
 			logger.Fatalf("Failed to download %s because %v\n", destination, err)
 		}

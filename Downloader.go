@@ -6,14 +6,19 @@ import (
 	"strings"
 )
 
-func changeExtension(filename string, extension string) string {
-	temp := strings.Split(filename, ".")
-	str := strings.Join(temp[:len(temp)-1], ".")
-	return str + "." + extension
+// replaceExtension replaces the extension of path with newExtension. 
+func replaceExtension(path, newExtension string) string {
+	tokens := strings.Split(path, ".")
+	// Replace the final token with the new extension
+	tokens[len(tokens)-1] = newExtension
+	return strings.Join(tokens, ".")
 }
 
+// Downloader is implemented by any type that is used to download tracks.
 type Downloader interface {
+	// Download performs the process of downloading the track.
 	Download(TrackInfo) error
+	// GetFilename returns the name of the file created by Download.
 	GetFilename(TrackInfo) (string, error)
 }
 
@@ -43,7 +48,7 @@ func (ytdl YoutubeDLCompatibleDownloader) GetFilename(track TrackInfo) (string, 
 		return filename, errors.New("Could not get filename")
 	}
 
-	filename = changeExtension(filename, ytdl.FormatExtension)
+	filename = replaceExtension(filename, ytdl.FormatExtension)
 
 	return filename, nil
 }

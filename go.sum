@@ -1,2 +1,4 @@
 github.com/haydenheroux/cleanstring v0.0.0-20221018161350-82a4faa46b05 h1:VctHpzrs7FqvLuNagawK2nowgL4zIVQPigtG+/OaV/g=
 github.com/haydenheroux/cleanstring v0.0.0-20221018161350-82a4faa46b05/go.mod h1:OFSzpBMctUCuSS52g5qPch3vgK6qkLyzxgBd4xszn4U=
+github.com/haydenheroux/cleanstring v0.0.0-20230415034324-b8ab5561e057 h1:oyk4gjLnB9JO5VGfFVYHT19lUs6j3SHAm5JfkW4o6rc=
+github.com/haydenheroux/cleanstring v0.0.0-20230415034324-b8ab5561e057/go.mod h1:OFSzpBMctUCuSS52g5qPch3vgK6qkLyzxgBd4xszn4U=
