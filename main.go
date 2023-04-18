@@ -1,6 +1,9 @@
 package main
 
 import (
+	"music_dl/track"
+	"music_dl/downloader"
+
 	"flag"
 	"log"
 	"os"
@@ -23,7 +26,7 @@ func init() {
 	flag.StringVar(&outputDirectory, "o", "", "Output directory. If the directory does not exist, it will be created. If this option is not specified, the current working directory is used.")
 }
 
-func downloadTo(downloader Downloader, track TrackInfo, directory string) error {
+func downloadTo(downloader downloader.Downloader, track track.Track, directory string) error {
 	err := downloader.Download(track)
 	if err != nil {
 		return err
@@ -47,7 +50,7 @@ func main() {
 		logger.Fatalln("Usage: music_dl -i inputFile")
 	}
 
-	downloader := YoutubeDLCompatibleDownloader{
+	downloader := downloader.YoutubeDLCompatibleDownloader{
 		Executable:      downloaderExecutable,
 		Format:          outputFormat,
 		FormatExtension: outputFormat,
@@ -57,12 +60,12 @@ func main() {
 		logger.Fatalln("Creating directory")
 	}
 
-	tracks := []TrackInfo{}
+	tracks := []track.Track{}
 
 	lines, _ := linesIn(inputFile)
 
 	for n, line := range lines {
-		track, _ := parse(line)
+		track, _ := track.Parse(line)
 		logger.Printf("Successfully parsed line %d: %s\n", n, track)
 		tracks = append(tracks, track)
 	}

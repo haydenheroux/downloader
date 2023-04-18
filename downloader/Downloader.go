@@ -1,6 +1,8 @@
-package main
+package downloader
 
 import (
+	"music_dl/track"
+
 	"errors"
 	"os/exec"
 	"strings"
@@ -17,9 +19,9 @@ func replaceExtension(path, newExtension string) string {
 // Downloader is implemented by any type that is used to download tracks.
 type Downloader interface {
 	// Download performs the process of downloading the track.
-	Download(TrackInfo) error
+	Download(track.Track) error
 	// GetFilename returns the name of the file created by Download.
-	GetFilename(TrackInfo) (string, error)
+	GetFilename(track.Track) (string, error)
 }
 
 type YoutubeDLCompatibleDownloader struct {
@@ -28,7 +30,7 @@ type YoutubeDLCompatibleDownloader struct {
 	FormatExtension string
 }
 
-func (ytdl YoutubeDLCompatibleDownloader) Download(track TrackInfo) error {
+func (ytdl YoutubeDLCompatibleDownloader) Download(track track.Track) error {
 	dlCmd := exec.Command(ytdl.Executable, "-x", "--audio-format", ytdl.Format, track.URL)
 
 	if err := dlCmd.Run(); err != nil {
@@ -38,7 +40,7 @@ func (ytdl YoutubeDLCompatibleDownloader) Download(track TrackInfo) error {
 	return nil
 }
 
-func (ytdl YoutubeDLCompatibleDownloader) GetFilename(track TrackInfo) (string, error) {
+func (ytdl YoutubeDLCompatibleDownloader) GetFilename(track track.Track) (string, error) {
 	fileNameCmd := exec.Command(ytdl.Executable, "--get-filename", track.URL)
 	output, err := fileNameCmd.Output()
 
