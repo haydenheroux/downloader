@@ -31,28 +31,25 @@ func main() {
 
 	logger := log.New(os.Stderr, "music_dl: ", 0)
 
-	if inputFile == "" {
-		logger.Fatalln("Usage: music_dl -i inputFile")
-	}
-
 	downloader := downloader.YoutubeDLCompatibleDownloader{
 		Executable:      downloaderExecutable,
 		Format:          outputFormat,
 		FormatExtension: outputFormat,
 	}
 
-	if err := mkdir(outputDirectory); err != nil {
-		logger.Fatalln("Creating directory")
+	file, err := os.Open(inputFile)
+	defer file.Close()
+	if err != nil {
+		logger.Fatalf("Failed to open the input file \"%s\"; error was: %v\n", inputFile, err)
 	}
 
-	tracks := []track.Track{}
+	if err := mkdir(outputDirectory); err != nil {
+		logger.Fatalf("Failed to create the output directory \"%s\"; error was: %v\n", outputDirectory, err)
+	}
 
-	lines, _ := linesIn(inputFile)
-
-	for n, line := range lines {
-		track, _ := track.Parse(line)
-		logger.Printf("Successfully parsed line %d: %s\n", n, track)
-		tracks = append(tracks, track)
+	tracks, err := track.ParseFile(file)
+	if err != nil {
+		logger.Fatalf("Failed to parse input file; got %d before failing; error was: %v\n", len(tracks), err)
 	}
 
 	for _, track := range tracks {
