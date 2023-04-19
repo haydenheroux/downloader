@@ -31,7 +31,7 @@ func main() {
 
 	logger := log.New(os.Stderr, "music_dl: ", 0)
 
-	downloader := downloader.YoutubeDLCompatibleDownloader{
+	ytdl := downloader.YoutubeDLCompatibleDownloader{
 		Executable:      downloaderExecutable,
 		Format:          outputFormat,
 		FormatExtension: outputFormat,
@@ -58,7 +58,7 @@ func main() {
 			logger.Printf("Skipping %s because %s already exists\n", track, destination)
 			continue
 		}
-		err := downloadTo(downloader, track, outputDirectory)
+		err := downloader.DownloadTo(ytdl, track, outputDirectory)
 		if err != nil {
 			logger.Fatalf("Failed to download %s because %v\n", destination, err)
 		}
