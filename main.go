@@ -34,6 +34,7 @@ func main() {
 		Executable:      downloaderExecutable,
 		Format:          outputFormat,
 		FormatExtension: outputFormat,
+		OutputDirectory: outputDirectory,
 	}
 
 	file, err := os.Open(inputFile)
@@ -54,7 +55,7 @@ func main() {
 	tracks = onlyMissingFrom(tracks, outputDirectory)
 
 	for _, track := range tracks {
-		err := downloader.DownloadTo(ytdl, track, outputDirectory)
+		err := ytdl.Download(track)
 		if err != nil {
 			logger.Fatalf("Failed to download %s; error was: %v\n", track, err)
 		}
