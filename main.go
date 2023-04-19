@@ -7,7 +7,6 @@ import (
 	"flag"
 	"log"
 	"os"
-	"path/filepath"
 )
 
 var (
@@ -52,16 +51,12 @@ func main() {
 		logger.Fatalf("Failed to parse input file; got %d before failing; error was: %v\n", len(tracks), err)
 	}
 
+	tracks = onlyMissingFrom(tracks, outputDirectory)
+
 	for _, track := range tracks {
-		destination := filepath.Join(outputDirectory, track.String())
-		if exists(destination) {
-			logger.Printf("Skipping %s because %s already exists\n", track, destination)
-			continue
-		}
 		err := downloader.DownloadTo(ytdl, track, outputDirectory)
 		if err != nil {
-			logger.Fatalf("Failed to download %s because %v\n", destination, err)
+			logger.Fatalf("Failed to download %s; error was: %v\n", track, err)
 		}
-		logger.Printf("Successfully downloaded %s\n", destination)
 	}
 }
