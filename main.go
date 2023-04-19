@@ -33,7 +33,6 @@ func main() {
 	ytdl := downloader.YoutubeDLCompatibleDownloader{
 		Executable:      downloaderExecutable,
 		Format:          outputFormat,
-		FormatExtension: outputFormat,
 		OutputDirectory: outputDirectory,
 	}
 

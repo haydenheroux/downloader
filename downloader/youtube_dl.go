@@ -9,7 +9,6 @@ import (
 type YoutubeDLCompatibleDownloader struct {
 	Executable      string
 	Format          string
-	FormatExtension string
 	OutputDirectory string
 }
 
