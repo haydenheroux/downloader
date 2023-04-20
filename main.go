@@ -19,7 +19,6 @@ var (
 
 func init() {
 	flag.StringVar(&downloaderExecutable, "d", "yt-dlp", "Name of the executable to be used for downloading tracks. Only downloaders that use youtube-dl-compatible options are supported.")
-	flag.StringVar(&outputExtension, "e", "mp3", "Output audio format extension. Used for detecting downloaded files output.")
 	flag.StringVar(&outputFormat, "f", "mp3", "Output audio format. Used for specifying to the downloader which format to download.")
 	flag.StringVar(&inputFile, "i", "", "Input file. The file must contain lines with three tab-separated (TSV) fields, in this order: URL Artist(s) Title. Multiple artists can be included by delimiting with ampersands (&).")
 	flag.StringVar(&outputDirectory, "o", "", "Output directory. If the directory does not exist, it will be created. If this option is not specified, the current working directory is used.")
