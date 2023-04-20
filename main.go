@@ -51,6 +51,7 @@ func main() {
 		logger.Fatalf("Failed to parse input file; got %d before failing; error was: %v\n", len(tracks), err)
 	}
 
+	// FIXME Does not filter out tracks because downloaded tracks have extension
 	tracks = onlyMissingFrom(tracks, outputDirectory)
 
 	for _, track := range tracks {
