@@ -6,4 +6,6 @@ import "music_dl/track"
 type Downloader interface {
 	// Download performs the process of downloading the track.
 	Download(track.Track) error
+	// GetFilename gets the output filename for when the track is downloaded.
+	GetOutputFilename(track.Track) string
 }

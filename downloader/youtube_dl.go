@@ -18,3 +18,7 @@ func (ytdl YoutubeDLCompatibleDownloader) Download(track track.Track) error {
 
 	return dlCmd.Run()
 }
+
+func (ytdl YoutubeDLCompatibleDownloader) GetOutputFilename(track track.Track) string {
+	return track.String() + "." + ytdl.Format
+}
