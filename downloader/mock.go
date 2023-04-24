@@ -2,8 +2,6 @@ package downloader
 
 import (
 	"music_dl/track"
-
-	"os"
 )
 
 type MockDownloader struct {
@@ -12,13 +10,6 @@ type MockDownloader struct {
 }
 
 func (m MockDownloader) Download(track track.Track) error {
-	name := m.GetOutputFilename(track)
-	if _, err := os.Stat(name); os.IsNotExist(err) {
-		file, err := os.Create(name)
-		defer file.Close()
-
-		return err
-	}
 	return nil
 }
 
