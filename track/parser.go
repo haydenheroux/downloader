@@ -1,8 +1,7 @@
 package track
 
 import (
-	"bufio"
-	"errors"
+	"encoding/csv"
 	"io"
 	"net/url"
 	"strings"
@@ -23,48 +22,30 @@ func toURL(s string) string {
 	return "https://www.youtube.com/watch?v=" + s
 }
 
-// Parse attempts to create a Track struct from an input string.
-func Parse(s string) (Track, error) {
-	fields := strings.Split(s, "\t")
-
-	if len(fields) != 3 {
-		return Track{}, errors.New("") // TODO
-	}
-
+func parse(fields []string) Track {
 	track := Track{
 		URL:     toURL(fields[0]),
 		Artists: strings.Split(fields[1], "&"),
 		Title:   fields[2],
 	}
-	return track, nil
-}
-
-func ParseSlice(strs []string) ([]Track, error) {
-	tracks := make([]Track, len(strs))
-	for n, s := range strs {
-		track, err := Parse(s)
-
-		if err != nil {
-			return tracks, err
-		}
-
-		tracks[n] = track
-	}
-
-	return tracks, nil
+	return track
 }
 
 func ParseFile(r io.Reader) ([]Track, error) {
-	lines := []string{}
-	scanner := bufio.NewScanner(r)
+	reader := csv.NewReader(r)
+	reader.Comma = '\t'
+	reader.FieldsPerRecord = 3
 
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-
-	if err := scanner.Err(); err != nil {
+	records, err := reader.ReadAll()
+	if err != nil {
 		return []Track{}, err
 	}
 
-	return ParseSlice(lines)
+	tracks := make([]Track, 0, len(records))
+
+	for _, record := range records {
+		tracks = append(tracks, parse(record))
+	}
+
+	return tracks, nil
 }
