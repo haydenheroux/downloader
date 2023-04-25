@@ -51,7 +51,7 @@ func main() {
 	tracks = onlyMissingFrom(tracks, dl, outputDirectory)
 
 	for _, track := range tracks {
-		err := dl.Download(track)
+		err := dl.Download(track, outputDirectory)
 		if err != nil {
 			logger.Fatalf("Failed to download %s; error was: %v\n", track, err)
 		}

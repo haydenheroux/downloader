@@ -7,13 +7,11 @@ func createDownloader(name string) downloader.Downloader {
 	case "mock":
 		return downloader.MockDownloader{
 			Format:          outputFormat,
-			OutputDirectory: outputDirectory,
 		}
 	case "ytdlp":
 		return downloader.YoutubeDLCompatibleDownloader{
 			Executable:      "yt-dlp",
 			Format:          outputFormat,
-			OutputDirectory: outputDirectory,
 		}
 	case "ytdl":
 		fallthrough
@@ -21,7 +19,6 @@ func createDownloader(name string) downloader.Downloader {
 		return downloader.YoutubeDLCompatibleDownloader{
 			Executable:      "youtube_dl",
 			Format:          outputFormat,
-			OutputDirectory: outputDirectory,
 		}
 	}
 }

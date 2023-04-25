@@ -4,21 +4,22 @@ import (
 	"music_dl/track"
 
 	"os/exec"
+	"path/filepath"
 )
 
 type YoutubeDLCompatibleDownloader struct {
 	Executable      string
 	Format          string
-	OutputDirectory string
 }
 
-func (ytdl YoutubeDLCompatibleDownloader) Download(track track.Track) error {
+func (ytdl YoutubeDLCompatibleDownloader) Download(track track.Track, directory string) error {
 	dlCmd := exec.Command(ytdl.Executable, "-x", "--audio-format", ytdl.Format, "-o", track.String(), track.URL)
-	dlCmd.Dir = ytdl.OutputDirectory
+	dlCmd.Dir = directory
 
 	return dlCmd.Run()
 }
 
-func (ytdl YoutubeDLCompatibleDownloader) GetOutputFilename(track track.Track) string {
-	return track.String() + "." + ytdl.Format
+func (ytdl YoutubeDLCompatibleDownloader) GetOutputFilename(track track.Track, directory string) string {
+	file := track.String() + "." + ytdl.Format
+	return filepath.Join(directory, file)
 }

@@ -2,7 +2,6 @@ package main
 
 import "music_dl/track"
 import "music_dl/downloader"
-import "path/filepath"
 import "os"
 
 // onlyMissingFrom returns the tracks that are missing from the directory.
@@ -10,7 +9,7 @@ func onlyMissingFrom(tracks []track.Track, downloader downloader.Downloader, dir
 	result := make([]track.Track, 0, len(tracks))
 
 	for _, track := range tracks {
-		if out := filepath.Join(directory, downloader.GetOutputFilename(track)); !exists(out) {
+		if !exists(downloader.GetOutputFilename(track, directory)) {
 			result = append(result, track)
 		}
 	}
