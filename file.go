@@ -4,8 +4,8 @@ import "music_dl/track"
 import "music_dl/downloader"
 import "os"
 
-// onlyMissingFrom returns the tracks that are missing from the directory.
-func onlyMissingFrom(tracks []track.Track, downloader downloader.Downloader, directory string) []track.Track {
+// removeExisting returns tracks that are missing from the directory.
+func removeExisting(tracks []track.Track, downloader downloader.Downloader, directory string) []track.Track {
 	result := make([]track.Track, 0, len(tracks))
 
 	for _, track := range tracks {
