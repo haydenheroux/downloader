@@ -2,6 +2,7 @@ package main
 
 import (
 	"music_dl/track"
+    "music_dl/downloader"
 
 	"flag"
 	"log"
@@ -28,7 +29,7 @@ func main() {
 
 	logger := log.New(os.Stderr, "music_dl: ", 0)
 
-	dl := createDownloader(downloaderName)
+	dl := downloader.CreateDownloader(downloaderName, outputFormat)
 	if dl == nil {
 		logger.Fatalf("Failed to initialize downloader; name was %s\n", downloaderName)
 	}
