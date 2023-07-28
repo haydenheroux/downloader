@@ -40,18 +40,18 @@ func main() {
 	defer file.Close()
 
 	if err != nil {
-		logger.Fatalf("Failed to open the input file \"%s\"; error was: %v\n", inputFile, err)
+		logger.Fatalf("Failed to open the input file \"%s\": %v\n", inputFile, err)
 	}
 
     if outputDirectory != "" {
         if err := mkdir(outputDirectory); err != nil {
-            logger.Fatalf("Failed to create the output directory \"%s\"; error was: %v\n", outputDirectory, err)
+            logger.Fatalf("Failed to create the output directory \"%s\": %v\n", outputDirectory, err)
         }
     }
 
 	tracks, err := track.ParseFile(file)
 	if err != nil {
-		logger.Fatalf("Failed to parse input file; got %d before failing; error was: %v\n", len(tracks), err)
+		logger.Fatalf("Failed to parse input file; got %d before failing: %v\n", len(tracks), err)
 	}
 
 	tracks = removeExisting(tracks, dl, outputDirectory)
@@ -63,7 +63,7 @@ func main() {
 
 		err := dl.Download(track, outputDirectory)
 		if err != nil {
-			logger.Fatalf("Failed to download %s; error was: %v\n", track, err)
+			logger.Fatalf("Failed to download %s: %v\n", track, err)
 		}
 	}
 }
