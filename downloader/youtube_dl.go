@@ -23,13 +23,17 @@ func (ytdl YoutubeDLCompatibleDownloader) Download(track track.Track, directory 
         return err
     }
 
-    return errorFromOutput(output)
+    return errorFromOutput(output, err)
 }
 
-func errorFromOutput(output []byte) error {
+func errorFromOutput(output []byte, err error) error {
     s := string(output)
 
     var errs []error
+
+    if executable, ok := err.(*exec.Error); ok {
+        errs = append(errs, missingDependencyError(executable.Name))
+    }
 
     if strings.Contains(s, "ffmpeg not found") {
         errs = append(errs, missingDependencyError("ffmpeg"))
