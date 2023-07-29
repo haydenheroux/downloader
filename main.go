@@ -11,8 +11,9 @@ import (
 )
 
 const (
-    APP_NAME = "music_dl"
-    DEFAULT_OUTPUT_DIRECTORY = ""
+	APP_NAME                 = "music_dl"
+	NO_INPUT_FILE            = ""
+	DEFAULT_OUTPUT_DIRECTORY = ""
 )
 
 var (
@@ -26,7 +27,7 @@ var (
 func init() {
 	flag.StringVar(&downloaderName, "d", "ytdl", "Name of the downloader used to download tracks.")
 	flag.StringVar(&outputFormat, "f", "mp3", "Output format. Usually the extension of the output file.")
-	flag.StringVar(&inputFile, "i", "", "Input file. The file must contain lines with three tab-separated (TSV) fields, in this order: URL Artist(s) Title. Multiple artists can be included by delimiting with ampersands (&).")
+	flag.StringVar(&inputFile, "i", NO_INPUT_FILE, "Input file. The file must contain lines with three tab-separated (TSV) fields, in this order: URL Artist(s) Title. Multiple artists can be included by delimiting with ampersands (&).")
 	flag.StringVar(&outputDirectory, "o", DEFAULT_OUTPUT_DIRECTORY, "Output directory. If the directory does not exist, it will be created.")
 	flag.BoolVar(&printInfo, "p", false, "Print info. If true, print additional information about each downloaded track.")
 }
@@ -34,20 +35,24 @@ func init() {
 func main() {
 	flag.Parse()
 
-    logger := log.New(os.Stderr, APP_NAME + ":", 0)
+	logger := log.New(os.Stderr, APP_NAME+": ", 0)
+
+	if inputFile == NO_INPUT_FILE {
+		logger.Fatalf("No input file provided\n")
+	}
 
 	dl := downloader.CreateDownloader(downloaderName, outputFormat)
 
-    if shouldMkdir() {
-        if err := mkdir(outputDirectory); err != nil {
-            logger.Fatalf("Failed to make output directory (%v)\n", err)
-        }
-    }
+	if shouldMkdir() {
+		if err := mkdir(outputDirectory); err != nil {
+			logger.Fatalf("Failed to make output directory (%v)\n", err)
+		}
+	}
 
-    tracks, err := parseTracks()
-    if err != nil {
-        logger.Fatalf("Failed to parse tracks (%v)\n", err)
-    }
+	tracks, err := parseTracks()
+	if err != nil {
+		logger.Fatalf("Failed to parse tracks (%v)\n", err)
+	}
 
 	tracks = removeExisting(tracks, dl, outputDirectory)
 
@@ -64,7 +69,7 @@ func main() {
 }
 
 func shouldMkdir() bool {
-    return outputDirectory != DEFAULT_OUTPUT_DIRECTORY
+	return outputDirectory != DEFAULT_OUTPUT_DIRECTORY
 }
 
 func parseTracks() ([]track.Track, error) {
@@ -72,13 +77,13 @@ func parseTracks() ([]track.Track, error) {
 	defer file.Close()
 
 	if err != nil {
-        return []track.Track{}, err
+		return []track.Track{}, err
 	}
 
 	tracks, err := track.ParseFile(file)
 	if err != nil {
-        return []track.Track{}, err
+		return []track.Track{}, err
 	}
 
-    return tracks, nil
+	return tracks, nil
 }
