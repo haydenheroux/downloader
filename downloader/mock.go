@@ -15,6 +15,6 @@ func (m MockDownloader) Download(track track.Track, directory string) error {
 }
 
 func (m MockDownloader) GetOutputFilename(track track.Track, directory string) string {
-	file := track.String() + "." + m.Format
+	file := track.Name + "." + m.Format
 	return filepath.Join(directory, file)
 }

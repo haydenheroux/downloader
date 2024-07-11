@@ -8,7 +8,6 @@ type Track struct {
 	Name string
 }
 
-// String returns the representation of this track as a string.
 func (t Track) String() string {
 	return t.Name
 }
