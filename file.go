@@ -6,12 +6,25 @@ import (
 	"os"
 )
 
-// removeExisting returns tracks that are missing from the directory.
-func removeExisting(tracks []track.Track, downloader downloader.Downloader, directory string) []track.Track {
+// scanExisting computes the set of tracks existing in a directory.
+func scanExisting(tracks []track.Track, downloader downloader.Downloader, directory string) map[track.Track]bool {
+	existing := make(map[track.Track]bool)
+
+	for _, track := range tracks {
+		if exists(downloader.GetOutputFilename(track, directory)) {
+			existing[track] = true
+		}
+	}
+
+	return existing
+}
+
+// removeExisting removes existing tracks from a slice of tracks.
+func removeExisting(tracks []track.Track, existing map[track.Track]bool) []track.Track {
 	result := make([]track.Track, 0, len(tracks))
 
 	for _, track := range tracks {
-		if !exists(downloader.GetOutputFilename(track, directory)) {
+		if exists, _ := existing[track]; !exists {
 			result = append(result, track)
 		}
 	}
@@ -19,17 +32,17 @@ func removeExisting(tracks []track.Track, downloader downloader.Downloader, dire
 	return result
 }
 
-// exists tests whether the file found at filename is accessible.
-func exists(filename string) bool {
-	_, err := os.Stat(filename)
+// exists tests if a file is accessible.
+func exists(name string) bool {
+	_, err := os.Stat(name)
 	return err == nil
 }
 
-// mkdir wraps os.Mkdir so that the directory is not created if it already exists.
-func mkdir(directory string) error {
-	if exists(directory) {
+// mkdir creates a directory if it does not already exist.
+func mkdir(name string) error {
+	if exists(name) {
 		return nil
 	}
 
-	return os.Mkdir(directory, 0777)
+	return os.Mkdir(name, 0777)
 }
