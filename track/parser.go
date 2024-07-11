@@ -3,38 +3,40 @@ package track
 import (
 	"encoding/csv"
 	"io"
-	"net/url"
 	"strings"
+
+	"github.com/haydenheroux/strfmt"
 )
 
-// toURL transforms a string to a valid URL.
-// If s is already a URL, this function is transparent.
-// Otherwise, s is assumed to be the ID field of a YouTube URL.
-func toURL(s string) string {
-	u, err := url.Parse(s)
-	isUrl := err == nil && u.Scheme != "" && u.Host != ""
-
-	if isUrl {
-		return s
+func parseURLName(url, name string) Track {
+	return Track{
+		URL:  url,
+		Name: name,
 	}
+}
 
-	// Assume the stub is a YouTube ID if it is not a URL
-	return "https://www.youtube.com/watch?v=" + s
+func parseURLInfo(url, artists, title string) Track {
+	A := strfmt.Join(strings.Split(artists, "&"))
+	name := strfmt.Associate(map[string]string{A: title})
+
+	return parseURLName(url, name)
 }
 
 func parse(fields []string) Track {
-	track := Track{
-		URL:     toURL(fields[0]),
-		Artists: strings.Split(fields[1], "&"),
-		Title:   fields[2],
+	switch len(fields) {
+	case 2:
+		return parseURLName(fields[0], fields[1])
+	case 3:
+		return parseURLInfo(fields[0], fields[1], fields[2])
+	default:
+		return Track{}
 	}
-	return track
 }
 
 func ParseFile(r io.Reader) ([]Track, error) {
 	reader := csv.NewReader(r)
-	reader.Comma = '\t'
-	reader.FieldsPerRecord = 3
+	// Allow variable number of fields
+	reader.FieldsPerRecord = -1
 
 	records, err := reader.ReadAll()
 	if err != nil {
