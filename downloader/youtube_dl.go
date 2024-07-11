@@ -39,7 +39,7 @@ func errorFromOutput(output []byte, err error) error {
 		errs = append(errs, missingDependencyError("ffmpeg"))
 	}
 
-	if strings.Contains(s, "Video unavailable") || strings.Contains(s, "looks truncated") {
+	if strings.Contains(s, "Video unavailable") || strings.Contains(s, "not a valid URL") || strings.Contains(s, "looks truncated") {
 		errs = append(errs, unavailableError())
 	}
 
