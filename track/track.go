@@ -1,7 +1,7 @@
 package track
 
 import (
-	"github.com/haydenheroux/cleanstring"
+	fmt "github.com/haydenheroux/strfmt"
 )
 
 // Track represents a track.
@@ -16,8 +16,7 @@ type Track struct {
 
 // String returns the representation of this track as a string.
 func (t Track) String() string {
-	artists := cleanstring.CleanSlice(t.Artists)
-	title := cleanstring.Clean(t.Title)
-	temp := map[string]string{artists: title}
-	return cleanstring.CleanMap(temp)
+	artists := fmt.Join(t.Artists)
+	title := fmt.Format(t.Title)
+    return fmt.Associate(map[string]string{artists: title})
 }

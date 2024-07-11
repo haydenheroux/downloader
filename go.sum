@@ -4,3 +4,5 @@ github.com/haydenheroux/cleanstring v0.0.0-20230415034324-b8ab5561e057 h1:oyk4gj
 github.com/haydenheroux/cleanstring v0.0.0-20230415034324-b8ab5561e057/go.mod h1:OFSzpBMctUCuSS52g5qPch3vgK6qkLyzxgBd4xszn4U=
 github.com/haydenheroux/cleanstring v0.0.0-20230727095723-56489bcc4dcd h1:MIrh+mXzazPGnlhfv/e8w8f7Wkq4sezWMPlDWTdjC4o=
 github.com/haydenheroux/cleanstring v0.0.0-20230727095723-56489bcc4dcd/go.mod h1:OFSzpBMctUCuSS52g5qPch3vgK6qkLyzxgBd4xszn4U=
+github.com/haydenheroux/strfmt v0.0.0-20240710225914-30ac3ef7fa2c h1:F1b5gJZi8OyLmJxp/ImePj0+VZpfLxl9zwdSxUNsR3E=
+github.com/haydenheroux/strfmt v0.0.0-20240710225914-30ac3ef7fa2c/go.mod h1:k7I4UcnJxbRXcK3apODSzT8a9GgulIXCCx8wrsCMaHo=
