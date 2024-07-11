@@ -1,9 +1,9 @@
 package main
 
 import (
-    "downloader/downloader"
-    "downloader/track"
-    "os"
+	"downloader/downloader"
+	"downloader/track"
+	"os"
 )
 
 // removeExisting returns tracks that are missing from the directory.

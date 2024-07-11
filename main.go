@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"downloader/downloader"
 	"downloader/track"
+	"fmt"
 
 	"flag"
 	"log"
