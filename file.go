@@ -1,8 +1,10 @@
 package main
 
-import "music_dl/track"
-import "music_dl/downloader"
-import "os"
+import (
+    "downloader/downloader"
+    "downloader/track"
+    "os"
+)
 
 // removeExisting returns tracks that are missing from the directory.
 func removeExisting(tracks []track.Track, downloader downloader.Downloader, directory string) []track.Track {

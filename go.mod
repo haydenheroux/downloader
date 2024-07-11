@@ -1,4 +1,4 @@
-module music_dl
+module downloader
 
 go 1.18
 

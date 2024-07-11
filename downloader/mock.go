@@ -1,7 +1,7 @@
 package downloader
 
 import (
-	"music_dl/track"
+	"downloader/track"
 
 	"path/filepath"
 )

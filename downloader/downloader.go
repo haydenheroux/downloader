@@ -1,6 +1,6 @@
 package downloader
 
-import "music_dl/track"
+import "downloader/track"
 
 // Downloader is implemented by any type that is used to download tracks.
 type Downloader interface {

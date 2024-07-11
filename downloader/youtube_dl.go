@@ -2,7 +2,7 @@ package downloader
 
 import (
 	"errors"
-	"music_dl/track"
+	"downloader/track"
 	"os/exec"
 	"path/filepath"
 	"strings"

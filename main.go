@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"music_dl/downloader"
-	"music_dl/track"
+	"downloader/downloader"
+	"downloader/track"
 
 	"flag"
 	"log"
@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	APP_NAME                 = "music_dl"
+	APP_NAME                 = "downloader"
 	NO_INPUT_FILE            = ""
 	DEFAULT_OUTPUT_DIRECTORY = ""
 )
