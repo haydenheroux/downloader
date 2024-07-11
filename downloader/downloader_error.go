@@ -10,5 +10,5 @@ func missingDependencyError(dependency string) error {
 }
 
 func unavailableError() error {
-    return errors.New("content is unavailable")
+	return errors.New("content is unavailable")
 }

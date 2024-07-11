@@ -18,5 +18,5 @@ type Track struct {
 func (t Track) String() string {
 	artists := fmt.Join(t.Artists)
 	title := fmt.Format(t.Title)
-    return fmt.Associate(map[string]string{artists: title})
+	return fmt.Associate(map[string]string{artists: title})
 }
