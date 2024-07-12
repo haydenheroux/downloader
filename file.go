@@ -32,6 +32,22 @@ func removeExisting(tracks []track.Track, existing map[track.Track]bool) []track
 	return result
 }
 
+// removeDuplicates removes tracks that have the same name.
+func removeDuplicates(tracks []track.Track) []track.Track {
+	result := make([]track.Track, 0, len(tracks))
+
+	set := make(map[string]bool)
+
+	for _, track := range tracks {
+		if exists, _ := set[track.Name]; !exists {
+			result = append(result, track)
+			set[track.Name] = true
+		}
+	}
+
+	return result
+}
+
 // exists tests if a file is accessible.
 func exists(name string) bool {
 	_, err := os.Stat(name)

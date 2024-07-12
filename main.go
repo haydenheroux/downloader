@@ -20,6 +20,7 @@ var (
 	outputFormat    string
 	outputDirectory string
 	printInfo       bool
+	listTracks      bool
 )
 
 func init() {
@@ -28,6 +29,7 @@ func init() {
 	flag.StringVar(&outputDirectory, "o", DEFAULT_OUTPUT_DIRECTORY, "output directory")
 
 	flag.BoolVar(&printInfo, "p", false, "print information as a track is downloading")
+	flag.BoolVar(&listTracks, "l", false, "list tracks that would be downloaded then exit")
 }
 
 func main() {
@@ -64,6 +66,15 @@ func main() {
 	}
 
 	tracks = removeExisting(tracks, existing)
+	tracks = removeDuplicates(tracks)
+
+	if listTracks {
+		for _, track := range tracks {
+			fmt.Println(track)
+		}
+
+		os.Exit(0)
+	}
 
 	for _, track := range tracks {
 		if printInfo {
