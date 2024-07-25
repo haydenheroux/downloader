@@ -20,8 +20,8 @@ var (
 	outputFormat    string
 	outputDirectory string
 
-	listTracks      bool
-	printInfo       bool
+	listTracks bool
+	printInfo  bool
 )
 
 func init() {
