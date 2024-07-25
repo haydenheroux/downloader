@@ -19,8 +19,9 @@ var (
 	downloaderName  string
 	outputFormat    string
 	outputDirectory string
-	printInfo       bool
+
 	listTracks      bool
+	printInfo       bool
 )
 
 func init() {
@@ -57,6 +58,14 @@ func main() {
 		logger.Fatalf("failed to parse input file (%v)", err)
 	}
 
+	if listTracks {
+		for _, track := range tracks {
+			fmt.Println(track)
+		}
+
+		os.Exit(0)
+	}
+
 	existing := scanExisting(tracks, dl, outputDirectory)
 
 	if printInfo {
@@ -67,14 +76,6 @@ func main() {
 
 	tracks = removeExisting(tracks, existing)
 	tracks = removeDuplicates(tracks)
-
-	if listTracks {
-		for _, track := range tracks {
-			fmt.Println(track)
-		}
-
-		os.Exit(0)
-	}
 
 	for _, track := range tracks {
 		if printInfo {
