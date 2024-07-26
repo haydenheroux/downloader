@@ -43,6 +43,14 @@ func errorFromOutput(output []byte, err error) error {
 		errs = append(errs, unavailableError())
 	}
 
+	if strings.Contains(s, "confirm your age") {
+		errs = append(errs, ageRestricted())
+	}
+
+	if len(errs) == 0 {
+		errs = append(errs, errors.New(s))
+	}
+
 	return errors.Join(errs...)
 }
 
