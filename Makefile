@@ -5,3 +5,6 @@ build:
 
 fmt:
 	gofmt -s -w .
+
+install:
+	go install
