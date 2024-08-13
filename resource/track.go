@@ -1,12 +1,12 @@
-package track
+package resource
 
 import (
 	"github.com/haydenheroux/strfmt"
 )
 
-type Track interface {
-	URL() string
+type Resource interface {
 	Name() string
+	Source() string
 }
 
 type urlName struct {
@@ -14,12 +14,12 @@ type urlName struct {
 	name string
 }
 
-func (t urlName) URL() string {
-	return t.url
-}
-
 func (t urlName) Name() string {
 	return t.name
+}
+
+func (t urlName) Source() string {
+	return t.url
 }
 
 type urlArtistsTitle struct {
@@ -28,12 +28,12 @@ type urlArtistsTitle struct {
 	title   string
 }
 
-func (t urlArtistsTitle) URL() string {
-	return t.url
-}
-
 func (t urlArtistsTitle) Name() string {
 	artists := strfmt.Join(t.artists)
 
 	return strfmt.Associate(map[string]string{artists: t.title})
+}
+
+func (t urlArtistsTitle) Source() string {
+	return t.url
 }

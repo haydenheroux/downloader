@@ -1,4 +1,4 @@
-package track
+package resource
 
 import (
 	"encoding/csv"
@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func parse(fields []string) Track {
+func parse(fields []string) Resource {
 	switch len(fields) {
 	case 2:
 		return urlName{
@@ -24,17 +24,17 @@ func parse(fields []string) Track {
 	}
 }
 
-func ParseFile(r io.Reader) ([]Track, error) {
+func ParseFile(r io.Reader) ([]Resource, error) {
 	reader := csv.NewReader(r)
 	// Allow variable number of fields
 	reader.FieldsPerRecord = -1
 
 	records, err := reader.ReadAll()
 	if err != nil {
-		return []Track{}, err
+		return []Resource{}, err
 	}
 
-	tracks := make([]Track, 0, len(records))
+	tracks := make([]Resource, 0, len(records))
 
 	for _, record := range records {
 		tracks = append(tracks, parse(record))

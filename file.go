@@ -2,13 +2,13 @@ package main
 
 import (
 	"downloader/downloader"
-	"downloader/track"
+	"downloader/resource"
 	"os"
 )
 
 // scanExisting computes the set of tracks existing in a directory.
-func scanExisting(tracks []track.Track, downloader downloader.Downloader, directory string) map[track.Track]bool {
-	existing := make(map[track.Track]bool)
+func scanExisting(tracks []resource.Resource, downloader downloader.Downloader, directory string) map[resource.Resource]bool {
+	existing := make(map[resource.Resource]bool)
 
 	for _, track := range tracks {
 		if exists(downloader.GetOutputFilename(track, directory)) {
@@ -20,8 +20,8 @@ func scanExisting(tracks []track.Track, downloader downloader.Downloader, direct
 }
 
 // removeExisting removes existing tracks from a slice of tracks.
-func removeExisting(tracks []track.Track, existing map[track.Track]bool) []track.Track {
-	result := make([]track.Track, 0, len(tracks))
+func removeExisting(tracks []resource.Resource, existing map[resource.Resource]bool) []resource.Resource {
+	result := make([]resource.Resource, 0, len(tracks))
 
 	for _, track := range tracks {
 		if exists, _ := existing[track]; !exists {
@@ -33,8 +33,8 @@ func removeExisting(tracks []track.Track, existing map[track.Track]bool) []track
 }
 
 // removeDuplicates removes tracks that have the same name.
-func removeDuplicates(tracks []track.Track) []track.Track {
-	result := make([]track.Track, 0, len(tracks))
+func removeDuplicates(tracks []resource.Resource) []resource.Resource {
+	result := make([]resource.Resource, 0, len(tracks))
 
 	set := make(map[string]bool)
 

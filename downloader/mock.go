@@ -1,7 +1,7 @@
 package downloader
 
 import (
-	"downloader/track"
+	"downloader/resource"
 
 	"path/filepath"
 )
@@ -10,11 +10,11 @@ type MockDownloader struct {
 	Format string
 }
 
-func (m MockDownloader) Download(track track.Track, directory string) error {
+func (m MockDownloader) Download(track resource.Resource, directory string) error {
 	return nil
 }
 
-func (m MockDownloader) GetOutputFilename(track track.Track, directory string) string {
+func (m MockDownloader) GetOutputFilename(track resource.Resource, directory string) string {
 	file := track.Name() + "." + m.Format
 	return filepath.Join(directory, file)
 }

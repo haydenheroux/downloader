@@ -2,7 +2,7 @@ package main
 
 import (
 	"downloader/downloader"
-	"downloader/track"
+	"downloader/resource"
 	"fmt"
 
 	"flag"
@@ -97,8 +97,8 @@ func shouldMkdir() bool {
 	return outputDirectory != DEFAULT_OUTPUT_DIRECTORY
 }
 
-func parseFiles(names []string) ([]track.Track, error) {
-	result := make([]track.Track, 0)
+func parseFiles(names []string) ([]resource.Resource, error) {
+	result := make([]resource.Resource, 0)
 
 	for _, name := range names {
 		tracks, err := parseFile(name)
@@ -115,17 +115,17 @@ func parseFiles(names []string) ([]track.Track, error) {
 	return result, nil
 }
 
-func parseFile(name string) ([]track.Track, error) {
+func parseFile(name string) ([]resource.Resource, error) {
 	file, err := os.Open(name)
 	defer file.Close()
 
 	if err != nil {
-		return []track.Track{}, err
+		return []resource.Resource{}, err
 	}
 
-	tracks, err := track.ParseFile(file)
+	tracks, err := resource.ParseFile(file)
 	if err != nil {
-		return []track.Track{}, err
+		return []resource.Resource{}, err
 	}
 
 	return tracks, nil
