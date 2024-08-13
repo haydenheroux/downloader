@@ -39,9 +39,11 @@ func removeDuplicates(tracks []track.Track) []track.Track {
 	set := make(map[string]bool)
 
 	for _, track := range tracks {
-		if exists, _ := set[track.Name]; !exists {
+		name := track.Name()
+
+		if exists, _ := set[name]; !exists {
 			result = append(result, track)
-			set[track.Name] = true
+			set[name] = true
 		}
 	}
 
