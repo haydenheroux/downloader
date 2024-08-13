@@ -66,7 +66,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	existing := scanExisting(tracks, dl, outputDirectory)
+	existing := existingResources(tracks, dl, outputDirectory)
 
 	if printInfo {
 		for track := range existing {
@@ -74,8 +74,8 @@ func main() {
 		}
 	}
 
-	tracks = removeExisting(tracks, existing)
-	tracks = removeDuplicates(tracks)
+	tracks = resource.Difference(tracks, existing)
+	tracks = resource.Unique(tracks)
 
 	for _, track := range tracks {
 		if printInfo {
