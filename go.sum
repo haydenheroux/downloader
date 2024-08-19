@@ -1,8 +1,2 @@
-github.com/haydenheroux/cleanstring v0.0.0-20221018161350-82a4faa46b05 h1:VctHpzrs7FqvLuNagawK2nowgL4zIVQPigtG+/OaV/g=
-github.com/haydenheroux/cleanstring v0.0.0-20221018161350-82a4faa46b05/go.mod h1:OFSzpBMctUCuSS52g5qPch3vgK6qkLyzxgBd4xszn4U=
-github.com/haydenheroux/cleanstring v0.0.0-20230415034324-b8ab5561e057 h1:oyk4gjLnB9JO5VGfFVYHT19lUs6j3SHAm5JfkW4o6rc=
-github.com/haydenheroux/cleanstring v0.0.0-20230415034324-b8ab5561e057/go.mod h1:OFSzpBMctUCuSS52g5qPch3vgK6qkLyzxgBd4xszn4U=
-github.com/haydenheroux/cleanstring v0.0.0-20230727095723-56489bcc4dcd h1:MIrh+mXzazPGnlhfv/e8w8f7Wkq4sezWMPlDWTdjC4o=
-github.com/haydenheroux/cleanstring v0.0.0-20230727095723-56489bcc4dcd/go.mod h1:OFSzpBMctUCuSS52g5qPch3vgK6qkLyzxgBd4xszn4U=
-github.com/haydenheroux/strfmt v0.0.0-20240710225914-30ac3ef7fa2c h1:F1b5gJZi8OyLmJxp/ImePj0+VZpfLxl9zwdSxUNsR3E=
-github.com/haydenheroux/strfmt v0.0.0-20240710225914-30ac3ef7fa2c/go.mod h1:k7I4UcnJxbRXcK3apODSzT8a9GgulIXCCx8wrsCMaHo=
+github.com/haydenheroux/strfmt v0.0.0-20240819105124-71482bceaee6 h1:/l9/AnBYwHOOBCA/UO35pPxlEK8P9DU0KMXstmbr6M4=
+github.com/haydenheroux/strfmt v0.0.0-20240819105124-71482bceaee6/go.mod h1:k7I4UcnJxbRXcK3apODSzT8a9GgulIXCCx8wrsCMaHo=

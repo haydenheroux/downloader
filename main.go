@@ -20,8 +20,9 @@ var (
 	outputFormat    string
 	outputDirectory string
 
-	listTracks bool
-	printInfo  bool
+	listResources bool
+	printInfo     bool
+	unique        bool
 )
 
 func init() {
@@ -29,8 +30,9 @@ func init() {
 	flag.StringVar(&outputFormat, "f", "mp3", "output format")
 	flag.StringVar(&outputDirectory, "o", DEFAULT_OUTPUT_DIRECTORY, "output directory")
 
-	flag.BoolVar(&printInfo, "p", false, "print information as a track is downloading")
-	flag.BoolVar(&listTracks, "l", false, "list tracks that would be downloaded then exit")
+	flag.BoolVar(&printInfo, "p", false, "print information as a resource is downloading")
+	flag.BoolVar(&listResources, "l", false, "list resources that would be downloaded then exit")
+	flag.BoolVar(&unique, "u", false, "attempt to identify unique resources and remove duplicates before downloading")
 }
 
 func main() {
@@ -52,43 +54,38 @@ func main() {
 		}
 	}
 
-	tracks, err := parseFiles(files)
+	set, err := parseFiles(files)
 
 	if err != nil {
 		logger.Fatalf("failed to parse input file (%v)", err)
 	}
 
-	if listTracks {
-		for _, track := range tracks {
-			fmt.Println(track)
+	if unique {
+		set.Unique()
+	}
+
+	if listResources {
+		for _, resource := range set.Resources() {
+			fmt.Println(resource.Name())
 		}
 
 		os.Exit(0)
 	}
 
-	existing := existingResources(tracks, dl, outputDirectory)
+	for _, resource := range set.Resources() {
+		name := dl.GetOutputFilename(resource, outputDirectory)
 
-	if printInfo {
-		for track := range existing {
-			fmt.Printf("found: %s\n", track)
-		}
-	}
-
-	tracks = resource.Difference(tracks, existing)
-	tracks = resource.Unique(tracks)
-
-	for _, track := range tracks {
 		if printInfo {
-			fmt.Printf("started: %s\n", track)
+			fmt.Printf("started: %s\n", name)
 		}
 
-		err := dl.Download(track, outputDirectory)
+		err := dl.Download(resource, outputDirectory)
 		if err != nil {
-			logger.Fatalf("failed to download %s (%v)\n", track, err)
+			logger.Fatalf("failed to download %s (%v)\n", name, err)
 		}
 
 		if printInfo {
-			fmt.Printf("completed: %s\n", track)
+			fmt.Printf("completed: %s\n", name)
 		}
 	}
 }
@@ -97,36 +94,36 @@ func shouldMkdir() bool {
 	return outputDirectory != DEFAULT_OUTPUT_DIRECTORY
 }
 
-func parseFiles(names []string) ([]resource.Resource, error) {
-	result := make([]resource.Resource, 0)
+func parseFiles(names []string) (resource.ResourceSet, error) {
+	result := resource.CreateSet([]resource.Resource{})
 
 	for _, name := range names {
-		tracks, err := parseFile(name)
+		resources, err := parseFile(name)
 
 		if err != nil {
-			return result, err
+			return resource.ResourceSet{}, err
 		}
 
-		for _, track := range tracks {
-			result = append(result, track)
+		for _, resource := range resources.Resources() {
+			result.Add(resource)
 		}
 	}
 
 	return result, nil
 }
 
-func parseFile(name string) ([]resource.Resource, error) {
+func parseFile(name string) (resource.ResourceSet, error) {
 	file, err := os.Open(name)
 	defer file.Close()
 
 	if err != nil {
-		return []resource.Resource{}, err
+		return resource.ResourceSet{}, err
 	}
 
-	tracks, err := resource.ParseFile(file)
+	resources, err := resource.ParseFile(file)
 	if err != nil {
-		return []resource.Resource{}, err
+		return resource.ResourceSet{}, err
 	}
 
-	return tracks, nil
+	return resources, nil
 }

@@ -3,42 +3,49 @@ package resource
 import (
 	"encoding/csv"
 	"io"
-	"strings"
 )
 
 func parse(fields []string) Resource {
 	switch len(fields) {
+	case 1:
+		return namedUrl{
+			url:  fields[0],
+			name: fields[0],
+		}
 	case 2:
-		return urlName{
+		return namedUrl{
 			url:  fields[0],
 			name: fields[1],
 		}
 	case 3:
-		return urlArtistsTitle{
-			url:     fields[0],
-			artists: strings.Split(fields[1], "&"),
-			title:   fields[2],
-		}
+		return createAttributedURL(fields)
 	default:
-		return urlName{}
+		resource := createAttributedURL(fields)
+
+		tags := fields[3:]
+
+		return taggedResource{
+			resource: resource,
+			tags:     tags,
+		}
 	}
 }
 
-func ParseFile(r io.Reader) ([]Resource, error) {
+func ParseFile(r io.Reader) (ResourceSet, error) {
 	reader := csv.NewReader(r)
 	// Allow variable number of fields
 	reader.FieldsPerRecord = -1
 
 	records, err := reader.ReadAll()
 	if err != nil {
-		return []Resource{}, err
+		return ResourceSet{}, err
 	}
 
-	tracks := make([]Resource, 0, len(records))
+	resources := make([]Resource, 0, len(records))
 
 	for _, record := range records {
-		tracks = append(tracks, parse(record))
+		resources = append(resources, parse(record))
 	}
 
-	return tracks, nil
+	return CreateSet(resources), nil
 }
