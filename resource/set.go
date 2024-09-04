@@ -83,7 +83,7 @@ func pick(resources []Resource) Resource {
 	best := resources[0]
 
 	for _, resource := range resources[1:] {
-		if resource.Specificity() > best.Specificity() {
+		if resource.Fields() > best.Fields() {
 			best = resource
 		}
 	}

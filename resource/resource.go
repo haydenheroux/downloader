@@ -12,7 +12,7 @@ type Resource interface {
 	Key() key
 	Name() string
 	Source() string
-	Specificity() int
+	Fields() int
 }
 
 type namedUrl struct {
@@ -32,7 +32,7 @@ func (n namedUrl) Source() string {
 	return n.url
 }
 
-func (n namedUrl) Specificity() int {
+func (n namedUrl) Fields() int {
 	return 2
 }
 
@@ -64,7 +64,7 @@ func (a attributedUrl) Source() string {
 	return a.url
 }
 
-func (a attributedUrl) Specificity() int {
+func (a attributedUrl) Fields() int {
 	return 3
 }
 
@@ -89,6 +89,6 @@ func (tr taggedResource) Source() string {
 	return tr.resource.Source()
 }
 
-func (tr taggedResource) Specificity() int {
-	return tr.resource.Specificity() + len(tr.tags)
+func (tr taggedResource) Fields() int {
+	return tr.resource.Fields() + len(tr.tags)
 }
