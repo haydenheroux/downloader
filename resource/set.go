@@ -68,47 +68,25 @@ func (rs ResourceSet) Difference(other ResourceSet) {
 }
 
 func (rs ResourceSet) Unique() {
-	for key, slice := range rs.resources {
-		if len(slice) == 1 {
+	for key, resources := range rs.resources {
+		if len(resources) == 1 {
 			continue
 		}
 
-		rs.resources[key] = unique(rs.resources[key])
+		best := pick(resources)
+
+		rs.resources[key] = []Resource{best}
 	}
-}
-
-func unique(resources []Resource) []Resource {
-	simplified := make([]Resource, 0)
-
-	byName := groupByName(resources)
-
-	for _, resources := range byName {
-		picked := pick(resources)
-
-		simplified = append(simplified, picked)
-	}
-
-	return simplified
-}
-
-func groupByName(resources []Resource) map[string][]Resource {
-	byName := make(map[string][]Resource)
-
-	for _, resource := range resources {
-		name := resource.Name()
-
-		_, ok := byName[name]
-
-		if ok == false {
-			byName[name] = make([]Resource, 0)
-		}
-
-		byName[name] = append(byName[name], resource)
-	}
-
-	return byName
 }
 
 func pick(resources []Resource) Resource {
-	return resources[0]
+	best := resources[0]
+
+	for _, resource := range resources[1:] {
+		if resource.Specificity() > best.Specificity() {
+			best = resource
+		}
+	}
+
+	return best
 }
