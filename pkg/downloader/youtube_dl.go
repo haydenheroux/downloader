@@ -1,11 +1,12 @@
 package downloader
 
 import (
-	"downloader/resource"
 	"errors"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/haydenheroux/media/pkg/resource"
 )
 
 type YoutubeDLCompatibleDownloader struct {

@@ -1,7 +1,7 @@
 all: build
 
 build:
-	go build -o dl
+	go build -o bin/ ./cmd/media
 
 fmt:
 	gofmt -s -w .

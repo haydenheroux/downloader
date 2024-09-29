@@ -1,9 +1,9 @@
 package downloader
 
 import (
-	"downloader/resource"
-
 	"path/filepath"
+
+	"github.com/haydenheroux/media/pkg/resource"
 )
 
 type MockDownloader struct {

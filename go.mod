@@ -1,4 +1,4 @@
-module downloader
+module github.com/haydenheroux/media
 
 go 1.18
 
