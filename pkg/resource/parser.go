@@ -18,9 +18,9 @@ func parse(fields []string) Resource {
 			name: fields[1],
 		}
 	case 3:
-		return createAttributedURL(fields)
+		return createAttributedUrl(fields)
 	default:
-		resource := createAttributedURL(fields)
+		resource := createAttributedUrl(fields)
 
 		tags := fields[3:]
 

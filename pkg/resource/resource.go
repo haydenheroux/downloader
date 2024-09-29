@@ -1,94 +1,120 @@
 package resource
 
-import (
-	"strings"
-
-	"github.com/haydenheroux/strfmt"
-)
-
-type key string
+// primaryKey represents the primary key of a resource.
+type primaryKey string
 
 type Resource interface {
-	Key() key
-	Name() string
+	// PrimaryKey returns the unique identifier for the media asset.
+	// Resources with the same primary key represent the same media asset.
+	PrimaryKey() primaryKey
+
+	// Source returns where the media asset can be accessed.
 	Source() string
-	Fields() int
+
+	// MetadataFields returns the number of metadata fields associated with the media asset.
+	MetadataFields() int
+
+	// Title returns the title describing the media asset.
+	Title() string
 }
 
-type namedUrl struct {
-	url  string
-	name string
+type ResourceSet struct {
+	// exists tracks whether a resource is contained in the resource set.
+	exists map[primaryKey]bool
+	// resources maps each primary key to the resources with the same primary key.
+	resources map[primaryKey][]Resource
 }
 
-func (n namedUrl) Key() key {
-	return key(n.Name())
+// CreateSet creates a new resource set.
+func CreateSet(resources []Resource) ResourceSet {
+	rs := ResourceSet{
+		exists:    make(map[primaryKey]bool),
+		resources: make(map[primaryKey][]Resource),
+	}
+
+	for _, resource := range resources {
+		rs.Add(resource)
+	}
+
+	return rs
 }
 
-func (n namedUrl) Name() string {
-	return n.name
+// Add adds a resource to a resource set.
+func (rs ResourceSet) Add(resource Resource) {
+	key := resource.PrimaryKey()
+
+	rs.exists[key] = true
+
+	_, exists := rs.resources[key]
+
+	if exists == false {
+		rs.resources[key] = make([]Resource, 0)
+	}
+
+	rs.resources[key] = append(rs.resources[key], resource)
 }
 
-func (n namedUrl) Source() string {
-	return n.url
+// Remove removes a resource from a resource set.
+func (rs ResourceSet) Remove(resource Resource) {
+	key := resource.PrimaryKey()
+
+	delete(rs.exists, key)
+	delete(rs.resources, key)
 }
 
-func (n namedUrl) Fields() int {
-	return 2
+// Contains returns true if the resource set contains the resource.
+func (rs ResourceSet) Contains(resource Resource) bool {
+	key := resource.PrimaryKey()
+
+	_, exists := rs.exists[key]
+
+	return exists
 }
 
-type attributedUrl struct {
-	url     string
-	artists []string
-	title   string
+// Resources returns a slice of all resources in the resource set.
+func (rs ResourceSet) Resources() []Resource {
+	resources := make([]Resource, 0)
+
+	for _, slice := range rs.resources {
+		for _, resource := range slice {
+			resources = append(resources, resource)
+		}
+	}
+
+	return resources
 }
 
-func createAttributedURL(fields []string) attributedUrl {
-	return attributedUrl{
-		url:     fields[0],
-		artists: strings.Split(fields[1], "&"),
-		title:   fields[2],
+// Without removes all resources shared with another resource set.
+func (rs ResourceSet) Without(other ResourceSet) {
+	for _, resource := range rs.Resources() {
+		if other.Contains(resource) {
+			rs.Remove(resource)
+		}
 	}
 }
 
-func (a attributedUrl) Key() key {
-	return key(a.Name())
+// Reduce reduces the resource set such that each primary key is associated with only one resource.
+func (rs ResourceSet) Reduce() {
+	for key, resources := range rs.resources {
+		if len(resources) == 1 {
+			continue
+		}
+
+		best := pick(resources)
+
+		rs.resources[key] = []Resource{best}
+	}
 }
 
-func (a attributedUrl) Name() string {
-	artists := strfmt.Join(a.artists)
+// pick returns the resource with the most metadata fields.
+func pick(resources []Resource) Resource {
+	best := resources[0]
 
-	return strfmt.Associate(map[string]string{artists: a.title})
-}
+	for _, resource := range resources[1:] {
+		if resource.MetadataFields() > best.MetadataFields() {
+			best = resource
+		}
+	}
 
-func (a attributedUrl) Source() string {
-	return a.url
-}
-
-func (a attributedUrl) Fields() int {
-	return 3
-}
-
-type taggedResource struct {
-	resource Resource
-	tags     []string
-}
-
-func (tr taggedResource) Key() key {
-	return tr.resource.Key()
-}
-
-func (tr taggedResource) Name() string {
-	name := tr.resource.Name()
-
-	tags := strfmt.Join(tr.tags)
-
-	return strfmt.Join([]string{name, tags})
-}
-
-func (tr taggedResource) Source() string {
-	return tr.resource.Source()
-}
-
-func (tr taggedResource) Fields() int {
-	return tr.resource.Fields() + len(tr.tags)
+	return best
 }
