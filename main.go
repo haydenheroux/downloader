@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	APP_NAME                 = "downloader"
-	DEFAULT_OUTPUT_DIRECTORY = ""
+	appName          = "downloader"
+	defaultOutputDir = ""
 )
 
 var (
@@ -28,7 +28,7 @@ var (
 func init() {
 	flag.StringVar(&downloaderName, "d", "ytdl", "downloader name")
 	flag.StringVar(&outputFormat, "f", "mp3", "output format")
-	flag.StringVar(&outputDirectory, "o", DEFAULT_OUTPUT_DIRECTORY, "output directory")
+	flag.StringVar(&outputDirectory, "o", defaultOutputDir, "output directory")
 
 	flag.BoolVar(&printInfo, "p", false, "print information as a resource is downloading")
 	flag.BoolVar(&listResources, "l", false, "list resources that would be downloaded then exit")
@@ -38,7 +38,7 @@ func init() {
 func main() {
 	flag.Parse()
 
-	logger := log.New(os.Stderr, APP_NAME+": ", 0)
+	logger := log.New(os.Stderr, appName+": ", 0)
 
 	files := flag.Args()
 
@@ -91,7 +91,7 @@ func main() {
 }
 
 func shouldMkdir() bool {
-	return outputDirectory != DEFAULT_OUTPUT_DIRECTORY
+	return outputDirectory != defaultOutputDir
 }
 
 func parseFiles(names []string) (resource.ResourceSet, error) {
