@@ -61,12 +61,12 @@ func main() {
 	}
 
 	if unique {
-		set.Unique()
+		set.Reduce()
 	}
 
 	if listResources {
 		for _, resource := range set.Resources() {
-			fmt.Println(resource.Name())
+			fmt.Println(resource.Title())
 		}
 
 		os.Exit(0)
