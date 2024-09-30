@@ -12,11 +12,13 @@ import (
 type YoutubeDLCompatibleDownloader struct {
 	Executable string
 	Format     string
+
+	outputDirectory string
 }
 
-func (ytdl YoutubeDLCompatibleDownloader) Download(track resource.Resource, directory string) error {
+func (ytdl YoutubeDLCompatibleDownloader) Download(track resource.Resource) error {
 	dlCmd := exec.Command(ytdl.Executable, "-x", "--audio-format", ytdl.Format, "-o", track.Title(), track.Source())
-	dlCmd.Dir = directory
+	dlCmd.Dir = ytdl.outputDirectory
 
 	output, err := dlCmd.CombinedOutput()
 
@@ -55,7 +57,11 @@ func errorFromOutput(output []byte, err error) error {
 	return errors.Join(errs...)
 }
 
-func (ytdl YoutubeDLCompatibleDownloader) GetOutputFilename(track resource.Resource, directory string) string {
+func (ytdl *YoutubeDLCompatibleDownloader) SetOutputDirectory(directory string) {
+	ytdl.outputDirectory = directory
+}
+
+func (ytdl YoutubeDLCompatibleDownloader) OutputLocation(track resource.Resource) string {
 	file := track.Title() + "." + ytdl.Format
-	return filepath.Join(directory, file)
+	return filepath.Join(ytdl.outputDirectory, file)
 }

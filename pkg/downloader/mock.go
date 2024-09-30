@@ -8,13 +8,19 @@ import (
 
 type MockDownloader struct {
 	Format string
+
+	outputDirectory string
 }
 
-func (m MockDownloader) Download(track resource.Resource, directory string) error {
+func (m MockDownloader) Download(track resource.Resource) error {
 	return nil
 }
 
-func (m MockDownloader) GetOutputFilename(track resource.Resource, directory string) string {
+func (m *MockDownloader) SetOutputDirectory(directory string) {
+	m.outputDirectory = directory
+}
+
+func (m MockDownloader) OutputLocation(track resource.Resource) string {
 	file := track.Title() + "." + m.Format
-	return filepath.Join(directory, file)
+	return filepath.Join(m.outputDirectory, file)
 }

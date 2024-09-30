@@ -29,7 +29,7 @@ func main() {
 					&cli.StringSliceFlag{
 						Name:    "input",
 						Aliases: []string{"i", "in"},
-						Usage:   "Download assets in `INPUT`",
+						Usage:   "Input `FILE`",
 					},
 					&cli.StringFlag{
 						Name:     "downloader",
@@ -72,6 +72,8 @@ func main() {
 
 					dl := downloader.CreateDownloader(downloaderName, outputFormat)
 
+					dl.SetOutputDirectory(outputDirectory)
+
 					if _, err := os.Stat(outputDirectory); err != nil {
 						if err := os.Mkdir(outputDirectory, 0777); err != nil {
 							return err
@@ -81,12 +83,12 @@ func main() {
 					for _, primaryKey := range inputSet.PrimaryKeys() {
 						bestResource := referenceSet.Best(primaryKey)
 
-						log.Printf("starting %s\n", bestResource.Title())
-						err := dl.Download(bestResource, outputDirectory)
+						log.Printf("started %s\n", dl.OutputLocation(bestResource))
+						err := dl.Download(bestResource)
 						if err != nil {
 							return err
 						}
-						log.Printf("finished %s\n", bestResource.Title())
+						log.Printf("finished %s\n", dl.OutputLocation(bestResource))
 					}
 
 					return nil
