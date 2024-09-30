@@ -40,9 +40,7 @@ func CreateSet(resources []Resource) ResourceSet {
 func (rs ResourceSet) Add(resource Resource) {
 	key := resource.PrimaryKey()
 
-	_, exists := rs.resources[key]
-
-	if exists == false {
+	if _, exists := rs.resources[key]; !exists {
 		rs.resources[key] = make([]Resource, 0)
 	}
 
@@ -64,16 +62,12 @@ func (rs ResourceSet) Resources() []Resource {
 
 // Remove removes a resource from a resource set.
 func (rs ResourceSet) Remove(resource Resource) {
-	key := resource.PrimaryKey()
-
-	delete(rs.resources, key)
+	delete(rs.resources, resource.PrimaryKey())
 }
 
 // Contains returns true if the resource set contains the resource.
 func (rs ResourceSet) Contains(resource Resource) bool {
-	key := resource.PrimaryKey()
-
-	_, exists := rs.resources[key]
+	_, exists := rs.resources[resource.PrimaryKey()]
 
 	return exists
 }
