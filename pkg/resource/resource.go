@@ -19,8 +19,6 @@ type Resource interface {
 }
 
 type ResourceSet struct {
-	// exists tracks whether a resource is contained in the resource set.
-	exists map[primaryKey]bool
 	// resources maps each primary key to the resources with the same primary key.
 	resources map[primaryKey][]Resource
 }
@@ -28,7 +26,6 @@ type ResourceSet struct {
 // CreateSet creates a new resource set.
 func CreateSet(resources []Resource) ResourceSet {
 	rs := ResourceSet{
-		exists:    make(map[primaryKey]bool),
 		resources: make(map[primaryKey][]Resource),
 	}
 
@@ -42,8 +39,6 @@ func CreateSet(resources []Resource) ResourceSet {
 // Add adds a resource to a resource set.
 func (rs ResourceSet) Add(resource Resource) {
 	key := resource.PrimaryKey()
-
-	rs.exists[key] = true
 
 	_, exists := rs.resources[key]
 
@@ -71,7 +66,6 @@ func (rs ResourceSet) Resources() []Resource {
 func (rs ResourceSet) Remove(resource Resource) {
 	key := resource.PrimaryKey()
 
-	delete(rs.exists, key)
 	delete(rs.resources, key)
 }
 
@@ -79,7 +73,7 @@ func (rs ResourceSet) Remove(resource Resource) {
 func (rs ResourceSet) Contains(resource Resource) bool {
 	key := resource.PrimaryKey()
 
-	_, exists := rs.exists[key]
+	_, exists := rs.resources[key]
 
 	return exists
 }
