@@ -1,6 +1,6 @@
 package downloader
 
-import "downloader/resource"
+import "github.com/haydenheroux/media/pkg/resource"
 
 // Downloader is implemented by any type that is used to download tracks.
 type Downloader interface {

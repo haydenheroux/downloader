@@ -1,11 +1,12 @@
 package downloader
 
 import (
-	"downloader/resource"
 	"errors"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/haydenheroux/media/pkg/resource"
 )
 
 type YoutubeDLCompatibleDownloader struct {
@@ -14,7 +15,7 @@ type YoutubeDLCompatibleDownloader struct {
 }
 
 func (ytdl YoutubeDLCompatibleDownloader) Download(track resource.Resource, directory string) error {
-	dlCmd := exec.Command(ytdl.Executable, "-x", "--audio-format", ytdl.Format, "-o", track.Name(), track.Source())
+	dlCmd := exec.Command(ytdl.Executable, "-x", "--audio-format", ytdl.Format, "-o", track.Title(), track.Source())
 	dlCmd.Dir = directory
 
 	output, err := dlCmd.CombinedOutput()
@@ -55,6 +56,6 @@ func errorFromOutput(output []byte, err error) error {
 }
 
 func (ytdl YoutubeDLCompatibleDownloader) GetOutputFilename(track resource.Resource, directory string) string {
-	file := track.Name() + "." + ytdl.Format
+	file := track.Title() + "." + ytdl.Format
 	return filepath.Join(directory, file)
 }
