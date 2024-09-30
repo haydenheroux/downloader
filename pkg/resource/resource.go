@@ -36,17 +36,6 @@ func CreateSet(resources []Resource) ResourceSet {
 	return rs
 }
 
-// Add adds a resource to a resource set.
-func (rs ResourceSet) Add(resource Resource) {
-	key := resource.PrimaryKey()
-
-	if _, exists := rs.resources[key]; !exists {
-		rs.resources[key] = make([]Resource, 0)
-	}
-
-	rs.resources[key] = append(rs.resources[key], resource)
-}
-
 // Resources returns a slice of all resources in the resource set.
 func (rs ResourceSet) Resources() []Resource {
 	resources := make([]Resource, 0)
@@ -58,6 +47,24 @@ func (rs ResourceSet) Resources() []Resource {
 	}
 
 	return resources
+}
+
+// Add adds a resource to a resource set.
+func (rs ResourceSet) Add(resource Resource) {
+	key := resource.PrimaryKey()
+
+	if _, exists := rs.resources[key]; !exists {
+		rs.resources[key] = make([]Resource, 0)
+	}
+
+	rs.resources[key] = append(rs.resources[key], resource)
+}
+
+// AddAll adds all resources in another set.
+func (rs ResourceSet) AddAll(other ResourceSet) {
+	for _, resource := range other.Resources() {
+		rs.Add(resource)
+	}
 }
 
 // Remove removes a resource from a resource set.
@@ -72,30 +79,21 @@ func (rs ResourceSet) Contains(resource Resource) bool {
 	return exists
 }
 
-// Without removes all resources shared with another resource set.
-func (rs ResourceSet) Without(other ResourceSet) {
-	for _, resource := range rs.Resources() {
-		if other.Contains(resource) {
-			rs.Remove(resource)
-		}
+// PrimaryKeys returns a slice of all primary keys.
+func (rs ResourceSet) PrimaryKeys() []primaryKey {
+	primaryKeys := make([]primaryKey, 0, len(rs.resources))
+
+	for primaryKey := range rs.resources {
+		primaryKeys = append(primaryKeys, primaryKey)
 	}
+
+	return primaryKeys
 }
 
-// Reduce reduces the resource set such that each primary key is associated with only one resource.
-func (rs ResourceSet) Reduce() {
-	for key, resources := range rs.resources {
-		if len(resources) == 1 {
-			continue
-		}
+// Best returns the best resource (by most metadata) that matches the primary key.
+func (rs ResourceSet) Best(primaryKey primaryKey) Resource {
+	resources := rs.resources[primaryKey]
 
-		best := pick(resources)
-
-		rs.resources[key] = []Resource{best}
-	}
-}
-
-// pick returns the resource with the most metadata fields.
-func pick(resources []Resource) Resource {
 	best := resources[0]
 
 	for _, resource := range resources[1:] {

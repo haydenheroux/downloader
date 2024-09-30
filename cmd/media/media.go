@@ -26,6 +26,11 @@ func main() {
 				Usage:     "download media assets",
 				ArgsUsage: "[files]",
 				Flags: []cli.Flag{
+					&cli.StringSliceFlag{
+						Name:    "input",
+						Aliases: []string{"i", "in"},
+						Usage:   "Download assets in `INPUT`",
+					},
 					&cli.StringFlag{
 						Name:     "downloader",
 						Aliases:  []string{"d"},
@@ -40,35 +45,30 @@ func main() {
 					},
 					&cli.StringFlag{
 						Name:     "output",
-						Aliases:  []string{"o"},
+						Aliases:  []string{"o", "out"},
 						Usage:    "Output directory",
 						Required: true,
 					},
 				},
 				Action: func(c *cli.Context) error {
 					references := c.StringSlice("reference")
+					inputs := c.StringSlice("input")
+
+					downloaderName := c.String("downloader")
+					outputDirectory := c.String("output")
+					outputFormat := c.String("format")
 
 					referenceSet, err := resource.ParseFiles(references)
 					if err != nil {
 						return err
 					}
 
-					for _, resource := range referenceSet.Resources() {
-						log.Printf("%s -> %s\n", resource.PrimaryKey(), resource.Title())
-					}
-
-					files := c.Args().Slice()
-
-					toDownload, err := resource.ParseFiles(files)
+					inputSet, err := resource.ParseFiles(inputs)
 					if err != nil {
 						return err
 					}
 
-					downloaderName := c.String("downloader")
-
-					outputDirectory := c.String("output")
-
-					outputFormat := c.String("format")
+					referenceSet.AddAll(inputSet)
 
 					dl := downloader.CreateDownloader(downloaderName, outputFormat)
 
@@ -78,11 +78,15 @@ func main() {
 						}
 					}
 
-					for _, resource := range toDownload.Resources() {
-						err := dl.Download(resource, outputDirectory)
+					for _, primaryKey := range inputSet.PrimaryKeys() {
+						bestResource := referenceSet.Best(primaryKey)
+
+						log.Printf("starting %s\n", bestResource.Title())
+						err := dl.Download(bestResource, outputDirectory)
 						if err != nil {
 							return err
 						}
+						log.Printf("finished %s\n", bestResource.Title())
 					}
 
 					return nil
