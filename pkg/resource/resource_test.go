@@ -72,7 +72,7 @@ func TestCreateSet(t *testing.T) {
 func TestAdd(t *testing.T) {
 	testResources := testResources()
 
-	newResource := attributedUrl{
+	resource := attributedUrl{
 		url:      "",
 		creators: []string{"Ray Bradbury"},
 		name:     "Fahrenheit 451",
@@ -80,13 +80,13 @@ func TestAdd(t *testing.T) {
 
 	set := CreateSet(testResources)
 
-	testResources = append(testResources, newResource)
+	testResources = append(testResources, resource)
 
 	if exactMatch(set.Resources(), testResources) {
 		t.Error("Set before adding matches slice after adding")
 	}
 
-	set.Add(newResource)
+	set.Add(resource)
 
 	if !exactMatch(set.Resources(), testResources) {
 		t.Error("Set after adding does not match slice after adding")
@@ -130,5 +130,31 @@ func TestRemove(t *testing.T) {
 
 	if !exactMatch(set.Resources(), removedResources) {
 		t.Error("Set after removal does not match slice after removal")
+	}
+}
+
+func TestContains(t *testing.T) {
+	testResources := testResources()
+
+	expectedResource := attributedUrl{
+		url:      "",
+		creators: []string{"Frank Herbert"},
+		name:     "Dune",
+	}
+
+	unexpectedResource := attributedUrl{
+		url:      "",
+		creators: []string{"Ray Bradbury"},
+		name:     "Fahrenheit 451",
+	}
+
+	set := CreateSet(testResources)
+
+	if !set.Contains(expectedResource) {
+		t.Error("Set contains expected resource")
+	}
+
+	if set.Contains(unexpectedResource) {
+		t.Error("Set contains unexpected resource")
 	}
 }
