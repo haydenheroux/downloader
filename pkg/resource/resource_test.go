@@ -32,32 +32,86 @@ func testResources() []Resource {
 	}
 }
 
-func phonyResource() Resource {
-	return namedUrl{
-		url:  "",
-		name: "",
-	}
+type canaryResource struct{}
+
+const canaryValue = "canary"
+
+func (c canaryResource) PrimaryKey() primaryKey {
+	return canaryValue
 }
 
-func TestCreateSet(t *testing.T) {
-	set := CreateSet(testResources())
+func (c canaryResource) Source() string {
+	return canaryValue
+}
 
-	testResources := testResources()
+func (c canaryResource) MetadataFields() int {
+	return 0
+}
 
-	for _, resource := range set.Resources() {
+func (c canaryResource) Title() string {
+	return canaryValue
+}
+
+func containsAll(set ResourceSet, resources []Resource) bool {
+	resourcesCopy := make([]Resource, len(resources))
+	copy(resourcesCopy, resources)
+
+	if len(set.Resources()) != len(resources) {
+		return false
+	}
+
+	for _, setResource := range set.Resources() {
 		found := false
 
-		for index, testResource := range testResources {
-			if resource != nil && resource.PrimaryKey() == testResource.PrimaryKey() {
-				// Instead of deleting the resource, replace with a phony resource
-				testResources[index] = phonyResource()
+		for index, copyResource := range resourcesCopy {
+			if setResource.PrimaryKey() == copyResource.PrimaryKey() {
+				// Instead of deleting the resource, replace with a canary resource
+				resourcesCopy[index] = canaryResource{}
 				found = true
 				break
 			}
 		}
 
 		if !found {
-			t.Error("Not all resources from the source slice were added to the resource set")
+			return false
 		}
+	}
+
+	for _, resource := range resourcesCopy {
+		if resource.PrimaryKey() != canaryValue {
+			return false
+		}
+	}
+
+	return true
+}
+
+func TestCreateSet(t *testing.T) {
+	testResources := testResources()
+
+	set := CreateSet(testResources)
+
+	if !containsAll(set, testResources) {
+		t.Error("Not all resources from the source slice were added to the resource set")
+	}
+}
+
+func TestAdd(t *testing.T) {
+	testResources := testResources()
+
+	newResource := attributedUrl{
+		url:      "",
+		creators: []string{"Ray Bradbury"},
+		name:     "Fahrenheit 451",
+	}
+
+	set := CreateSet(testResources)
+
+	testResources = append(testResources, newResource)
+
+	set.Add(newResource)
+
+	if !containsAll(set, testResources) {
+		t.Error("Not all resources from the source slice were added to the resource set")
 	}
 }
