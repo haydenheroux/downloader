@@ -32,26 +32,6 @@ func testResources() []Resource {
 	}
 }
 
-type canaryResource struct{}
-
-const canaryValue = "canary"
-
-func (c canaryResource) PrimaryKey() primaryKey {
-	return canaryValue
-}
-
-func (c canaryResource) Source() string {
-	return canaryValue
-}
-
-func (c canaryResource) MetadataFields() int {
-	return 0
-}
-
-func (c canaryResource) Title() string {
-	return canaryValue
-}
-
 func exactMatch(a, b []Resource) bool {
 	if len(a) != len(b) {
 		return false
@@ -85,7 +65,7 @@ func TestCreateSet(t *testing.T) {
 	set := CreateSet(testResources)
 
 	if !exactMatch(set.Resources(), testResources) {
-		t.Error("Not all resources from the source slice were added to the resource set")
+		t.Error("Set does not match slice")
 	}
 }
 
@@ -103,12 +83,52 @@ func TestAdd(t *testing.T) {
 	testResources = append(testResources, newResource)
 
 	if exactMatch(set.Resources(), testResources) {
-		t.Error("Set contains all resources before they were added")
+		t.Error("Set before adding matches slice after adding")
 	}
 
 	set.Add(newResource)
 
 	if !exactMatch(set.Resources(), testResources) {
-		t.Error("Not all resources from the source slice were added to the resource set")
+		t.Error("Set after adding does not match slice after adding")
+	}
+}
+
+func removeResource(resources []Resource, remove Resource) []Resource {
+	var removedResources []Resource
+
+	for _, resource := range resources {
+		if resource.PrimaryKey() != remove.PrimaryKey() {
+			removedResources = append(removedResources, resource)
+		}
+	}
+
+	return removedResources
+}
+
+func TestRemove(t *testing.T) {
+	testResources := testResources()
+
+	resource := attributedUrl{
+		url:      "",
+		creators: []string{"Frank Herbert"},
+		name:     "Dune",
+	}
+
+	set := CreateSet(testResources)
+
+	removedResources := removeResource(testResources, resource)
+
+	if exactMatch(set.Resources(), removedResources) {
+		t.Error("Set before removal matches slice after removal")
+	}
+
+	set.Remove(resource)
+
+	if exactMatch(set.Resources(), testResources) {
+		t.Error("Set after removal matches slice before removal")
+	}
+
+	if !exactMatch(set.Resources(), removedResources) {
+		t.Error("Set after removal does not match slice after removal")
 	}
 }

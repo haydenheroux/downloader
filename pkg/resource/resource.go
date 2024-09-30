@@ -54,6 +54,19 @@ func (rs ResourceSet) Add(resource Resource) {
 	rs.resources[key] = append(rs.resources[key], resource)
 }
 
+// Resources returns a slice of all resources in the resource set.
+func (rs ResourceSet) Resources() []Resource {
+	resources := make([]Resource, 0)
+
+	for _, slice := range rs.resources {
+		for _, resource := range slice {
+			resources = append(resources, resource)
+		}
+	}
+
+	return resources
+}
+
 // Remove removes a resource from a resource set.
 func (rs ResourceSet) Remove(resource Resource) {
 	key := resource.PrimaryKey()
@@ -69,19 +82,6 @@ func (rs ResourceSet) Contains(resource Resource) bool {
 	_, exists := rs.exists[key]
 
 	return exists
-}
-
-// Resources returns a slice of all resources in the resource set.
-func (rs ResourceSet) Resources() []Resource {
-	resources := make([]Resource, 0)
-
-	for _, slice := range rs.resources {
-		for _, resource := range slice {
-			resources = append(resources, resource)
-		}
-	}
-
-	return resources
 }
 
 // Without removes all resources shared with another resource set.
