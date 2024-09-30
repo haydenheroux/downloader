@@ -1,93 +1,97 @@
 package main
 
 import (
-	"flag"
-	"fmt"
 	"log"
 	"os"
 
 	"github.com/haydenheroux/media/pkg/downloader"
 	"github.com/haydenheroux/media/pkg/resource"
+	"github.com/urfave/cli/v2"
 )
-
-const (
-	appName          = "media"
-	defaultOutputDir = ""
-)
-
-var (
-	downloaderName  string
-	outputFormat    string
-	outputDirectory string
-
-	listResources bool
-	printInfo     bool
-	unique        bool
-)
-
-func init() {
-	flag.StringVar(&downloaderName, "d", "ytdl", "downloader name")
-	flag.StringVar(&outputFormat, "f", "mp3", "output format")
-	flag.StringVar(&outputDirectory, "o", defaultOutputDir, "output directory")
-
-	flag.BoolVar(&printInfo, "p", false, "print information as a resource is downloading")
-	flag.BoolVar(&listResources, "l", false, "list resources that would be downloaded then exit")
-	flag.BoolVar(&unique, "u", false, "attempt to identify unique resources and remove duplicates before downloading")
-}
 
 func main() {
-	flag.Parse()
+	app := &cli.App{
+		Name:  "media",
+		Usage: "manage and download media assets",
+		Flags: []cli.Flag{
+			&cli.StringSliceFlag{
+				Name:    "reference",
+				Aliases: []string{"r"},
+				Usage:   "Use `FILE` as reference",
+			},
+		},
+		Commands: []*cli.Command{
+			{
+				Name:      "download",
+				Usage:     "download media assets",
+				ArgsUsage: "[files]",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:     "downloader",
+						Aliases:  []string{"d"},
+						Usage:    "Downloader name",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "format",
+						Aliases:  []string{"f"},
+						Usage:    "Output format",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "output",
+						Aliases:  []string{"o"},
+						Usage:    "Output directory",
+						Required: true,
+					},
+				},
+				Action: func(c *cli.Context) error {
+					references := c.StringSlice("reference")
 
-	logger := log.New(os.Stderr, appName+": ", 0)
+					referenceSet, err := resource.ParseFiles(references)
+					if err != nil {
+						return err
+					}
 
-	files := flag.Args()
+					for _, resource := range referenceSet.Resources() {
+						log.Printf("%s -> %s\n", resource.PrimaryKey(), resource.Title())
+					}
 
-	if len(files) == 0 {
-		logger.Fatalf("no input files provided\n")
+					files := c.Args().Slice()
+
+					toDownload, err := resource.ParseFiles(files)
+					if err != nil {
+						return err
+					}
+
+					downloaderName := c.String("downloader")
+
+					outputDirectory := c.String("output")
+
+					outputFormat := c.String("format")
+
+					dl := downloader.CreateDownloader(downloaderName, outputFormat)
+
+					if _, err := os.Stat(outputDirectory); err != nil {
+						if err := os.Mkdir(outputDirectory, 0777); err != nil {
+							return err
+						}
+					}
+
+					for _, resource := range toDownload.Resources() {
+						err := dl.Download(resource, outputDirectory)
+						if err != nil {
+							return err
+						}
+					}
+
+					return nil
+				},
+			},
+		},
 	}
 
-	dl := downloader.CreateDownloader(downloaderName, outputFormat)
-
-	if outputDirectory != defaultOutputDir {
-		if _, err := os.Stat(outputDirectory); err != nil {
-			if err := os.Mkdir(outputDirectory, 0777); err != nil {
-				logger.Fatalf("failed to make output directory (%v)\n", err)
-			}
-		}
-	}
-
-	set, err := resource.ParseFiles(files)
-
-	if err != nil {
-		logger.Fatalf("failed to parse input file (%v)", err)
-	}
-
-	if unique {
-		set.Reduce()
-	}
-
-	if listResources {
-		for _, resource := range set.Resources() {
-			fmt.Println(resource.Title())
-		}
-
-		os.Exit(0)
-	}
-
-	for _, resource := range set.Resources() {
-		name := dl.GetOutputFilename(resource, outputDirectory)
-
-		if printInfo {
-			fmt.Printf("started: %s\n", name)
-		}
-
-		err := dl.Download(resource, outputDirectory)
-		if err != nil {
-			logger.Fatalf("failed to download %s (%v)\n", name, err)
-		}
-
-		if printInfo {
-			fmt.Printf("completed: %s\n", name)
-		}
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
 	}
 }
