@@ -151,7 +151,7 @@ func TestContains(t *testing.T) {
 	set := CreateSet(testResources)
 
 	if !set.Contains(expectedResource) {
-		t.Error("Set contains expected resource")
+		t.Error("Set does not contains expected resource")
 	}
 
 	if set.Contains(unexpectedResource) {
