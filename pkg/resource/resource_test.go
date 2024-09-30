@@ -52,33 +52,26 @@ func (c canaryResource) Title() string {
 	return canaryValue
 }
 
-func containsAll(set ResourceSet, resources []Resource) bool {
-	resourcesCopy := make([]Resource, len(resources))
-	copy(resourcesCopy, resources)
-
-	if len(set.Resources()) != len(resources) {
+func exactMatch(a, b []Resource) bool {
+	if len(a) != len(b) {
 		return false
 	}
 
-	for _, setResource := range set.Resources() {
-		found := false
+	countMap := make(map[primaryKey]int)
 
-		for index, copyResource := range resourcesCopy {
-			if setResource.PrimaryKey() == copyResource.PrimaryKey() {
-				// Instead of deleting the resource, replace with a canary resource
-				resourcesCopy[index] = canaryResource{}
-				found = true
-				break
-			}
-		}
+	for _, resource := range a {
+		countMap[resource.PrimaryKey()]++
+	}
 
-		if !found {
+	for _, resource := range b {
+		countMap[resource.PrimaryKey()]--
+		if countMap[resource.PrimaryKey()] < 0 {
 			return false
 		}
 	}
 
-	for _, resource := range resourcesCopy {
-		if resource.PrimaryKey() != canaryValue {
+	for _, count := range countMap {
+		if count != 0 {
 			return false
 		}
 	}
@@ -91,7 +84,7 @@ func TestCreateSet(t *testing.T) {
 
 	set := CreateSet(testResources)
 
-	if !containsAll(set, testResources) {
+	if !exactMatch(set.Resources(), testResources) {
 		t.Error("Not all resources from the source slice were added to the resource set")
 	}
 }
@@ -109,9 +102,13 @@ func TestAdd(t *testing.T) {
 
 	testResources = append(testResources, newResource)
 
+	if exactMatch(set.Resources(), testResources) {
+		t.Error("Set contains all resources before they were added")
+	}
+
 	set.Add(newResource)
 
-	if !containsAll(set, testResources) {
+	if !exactMatch(set.Resources(), testResources) {
 		t.Error("Not all resources from the source slice were added to the resource set")
 	}
 }
