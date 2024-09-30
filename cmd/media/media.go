@@ -48,13 +48,15 @@ func main() {
 
 	dl := downloader.CreateDownloader(downloaderName, outputFormat)
 
-	if shouldMkdir() {
-		if err := mkdir(outputDirectory); err != nil {
-			logger.Fatalf("failed to make output directory (%v)\n", err)
+	if outputDirectory != defaultOutputDir {
+		if _, err := os.Stat(outputDirectory); err != nil {
+			if err := os.Mkdir(outputDirectory, 0777); err != nil {
+				logger.Fatalf("failed to make output directory (%v)\n", err)
+			}
 		}
 	}
 
-	set, err := parseFiles(files)
+	set, err := resource.ParseFiles(files)
 
 	if err != nil {
 		logger.Fatalf("failed to parse input file (%v)", err)
@@ -88,57 +90,4 @@ func main() {
 			fmt.Printf("completed: %s\n", name)
 		}
 	}
-}
-
-func shouldMkdir() bool {
-	return outputDirectory != defaultOutputDir
-}
-
-func parseFiles(names []string) (resource.ResourceSet, error) {
-	result := resource.CreateSet([]resource.Resource{})
-
-	for _, name := range names {
-		resources, err := parseFile(name)
-
-		if err != nil {
-			return resource.ResourceSet{}, err
-		}
-
-		for _, resource := range resources.Resources() {
-			result.Add(resource)
-		}
-	}
-
-	return result, nil
-}
-
-func parseFile(name string) (resource.ResourceSet, error) {
-	file, err := os.Open(name)
-	defer file.Close()
-
-	if err != nil {
-		return resource.ResourceSet{}, err
-	}
-
-	resources, err := resource.ParseFile(file)
-	if err != nil {
-		return resource.ResourceSet{}, err
-	}
-
-	return resources, nil
-}
-
-// exists tests if a file is accessible.
-func exists(name string) bool {
-	_, err := os.Stat(name)
-	return err == nil
-}
-
-// mkdir creates a directory if it does not already exist.
-func mkdir(name string) error {
-	if exists(name) {
-		return nil
-	}
-
-	return os.Mkdir(name, 0777)
 }

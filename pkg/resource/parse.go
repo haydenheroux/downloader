@@ -3,6 +3,7 @@ package resource
 import (
 	"encoding/csv"
 	"io"
+	"os"
 )
 
 func parse(fields []string) Resource {
@@ -31,8 +32,8 @@ func parse(fields []string) Resource {
 	}
 }
 
-func ParseFile(r io.Reader) (ResourceSet, error) {
-	reader := csv.NewReader(r)
+func parseInput(input io.Reader) (ResourceSet, error) {
+	reader := csv.NewReader(input)
 	// Allow variable number of fields
 	reader.FieldsPerRecord = -1
 
@@ -48,4 +49,33 @@ func ParseFile(r io.Reader) (ResourceSet, error) {
 	}
 
 	return CreateSet(resources), nil
+}
+
+func ParseFile(name string) (ResourceSet, error) {
+	file, err := os.Open(name)
+	defer file.Close()
+
+	if err != nil {
+		return ResourceSet{}, err
+	}
+
+	return parseInput(file)
+}
+
+func ParseFiles(names []string) (ResourceSet, error) {
+	result := CreateSet([]Resource{})
+
+	for _, name := range names {
+		resources, err := ParseFile(name)
+
+		if err != nil {
+			return ResourceSet{}, err
+		}
+
+		for _, resource := range resources.Resources() {
+			result.Add(resource)
+		}
+	}
+
+	return result, nil
 }
