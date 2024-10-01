@@ -76,12 +76,11 @@ func main() {
 			for _, primaryKey := range inputSet.PrimaryKeys() {
 				bestResource := referenceSet.Best(primaryKey)
 
-				log.Printf("started %s\n", dl.OutputLocation(bestResource))
 				err := dl.Download(bestResource)
 				if err != nil {
 					return err
 				}
-				log.Printf("finished %s\n", dl.OutputLocation(bestResource))
+				log.Println(dl.OutputLocation(bestResource))
 			}
 
 			return nil
