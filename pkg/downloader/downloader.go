@@ -2,10 +2,11 @@ package downloader
 
 import "github.com/haydenheroux/media/pkg/resource"
 
-// Downloader is implemented by any type that is used to download tracks.
 type Downloader interface {
-	// Download performs the process of downloading the track.
-	Download(resource.Resource, string) error
-	// GetFilename gets the output filename for when the track is downloaded.
-	GetOutputFilename(resource.Resource, string) string
+	// Download downloads the resource.
+	Download(resource.Resource) error
+	// SetOutputDirectory sets the directory where the downloader outputs resources.
+	SetOutputDirectory(string)
+	// OutputLocation returns where the downloader outputs the resource.
+	OutputLocation(resource.Resource) string
 }
