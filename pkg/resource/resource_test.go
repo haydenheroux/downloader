@@ -37,7 +37,7 @@ func exactMatch(a, b []Resource) bool {
 		return false
 	}
 
-	countMap := make(map[primaryKey]int)
+	countMap := make(map[PrimaryKey]int)
 
 	for _, resource := range a {
 		countMap[resource.PrimaryKey()]++
