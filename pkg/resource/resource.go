@@ -1,12 +1,12 @@
 package resource
 
-// primaryKey represents the primary key of a resource.
-type primaryKey string
+// PrimaryKey represents the primary key of a resource.
+type PrimaryKey string
 
 type Resource interface {
 	// PrimaryKey returns the unique identifier for the media asset.
 	// Resources with the same primary key represent the same media asset.
-	PrimaryKey() primaryKey
+	PrimaryKey() PrimaryKey
 
 	// Source returns where the media asset can be accessed.
 	Source() string
@@ -20,13 +20,13 @@ type Resource interface {
 
 type ResourceSet struct {
 	// resources maps each primary key to the resources with the same primary key.
-	resources map[primaryKey][]Resource
+	resources map[PrimaryKey][]Resource
 }
 
 // CreateSet creates a new resource set.
 func CreateSet(resources []Resource) ResourceSet {
 	rs := ResourceSet{
-		resources: make(map[primaryKey][]Resource),
+		resources: make(map[PrimaryKey][]Resource),
 	}
 
 	for _, resource := range resources {
@@ -74,14 +74,19 @@ func (rs ResourceSet) Remove(resource Resource) {
 
 // Contains returns true if the resource set contains the resource.
 func (rs ResourceSet) Contains(resource Resource) bool {
-	_, exists := rs.resources[resource.PrimaryKey()]
+	return rs.ContainsKey(resource.PrimaryKey())
+}
+
+// ContainsKey returns true if the resource set contains resources matching the key.
+func (rs ResourceSet) ContainsKey(primaryKey PrimaryKey) bool {
+	_, exists := rs.resources[primaryKey]
 
 	return exists
 }
 
 // PrimaryKeys returns a slice of all primary keys.
-func (rs ResourceSet) PrimaryKeys() []primaryKey {
-	primaryKeys := make([]primaryKey, 0, len(rs.resources))
+func (rs ResourceSet) PrimaryKeys() []PrimaryKey {
+	primaryKeys := make([]PrimaryKey, 0, len(rs.resources))
 
 	for primaryKey := range rs.resources {
 		primaryKeys = append(primaryKeys, primaryKey)
@@ -91,7 +96,7 @@ func (rs ResourceSet) PrimaryKeys() []primaryKey {
 }
 
 // Best returns the best resource (by most metadata) that matches the primary key.
-func (rs ResourceSet) Best(primaryKey primaryKey) Resource {
+func (rs ResourceSet) Best(primaryKey PrimaryKey) Resource {
 	resources := rs.resources[primaryKey]
 
 	best := resources[0]

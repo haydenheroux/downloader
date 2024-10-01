@@ -14,8 +14,8 @@ type namedUrl struct {
 	name string
 }
 
-func (n namedUrl) PrimaryKey() primaryKey {
-	return primaryKey(n.name)
+func (n namedUrl) PrimaryKey() PrimaryKey {
+	return PrimaryKey(n.name)
 }
 
 func (n namedUrl) Title() string {
@@ -49,8 +49,8 @@ func createAttributedUrl(fields []string) attributedUrl {
 	}
 }
 
-func (a attributedUrl) PrimaryKey() primaryKey {
-	return primaryKey(a.Title())
+func (a attributedUrl) PrimaryKey() PrimaryKey {
+	return PrimaryKey(a.Title())
 }
 
 func (a attributedUrl) Title() string {
@@ -74,7 +74,7 @@ type taggedResource struct {
 	tags     []string
 }
 
-func (tr taggedResource) PrimaryKey() primaryKey {
+func (tr taggedResource) PrimaryKey() PrimaryKey {
 	// Use the primary key of the nested resource
 	return tr.resource.PrimaryKey()
 }

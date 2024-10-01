@@ -1,6 +1,7 @@
 package resource
 
 import (
+	"bufio"
 	"encoding/csv"
 	"io"
 	"os"
@@ -74,6 +75,51 @@ func ParseFiles(names []string) (ResourceSet, error) {
 
 		for _, resource := range resources.Resources() {
 			result.Add(resource)
+		}
+	}
+
+	return result, nil
+}
+
+func parseKeys(input io.Reader) ([]PrimaryKey, error) {
+	scanner := bufio.NewScanner(input)
+
+	result := make([]PrimaryKey, 0)
+
+	for scanner.Scan() {
+		result = append(result, PrimaryKey(scanner.Text()))
+	}
+
+	if err := scanner.Err(); err != nil {
+		return []PrimaryKey{}, scanner.Err()
+	}
+
+	return result, nil
+}
+
+func ParseKeyFile(name string) ([]PrimaryKey, error) {
+	file, err := os.Open(name)
+	defer file.Close()
+
+	if err != nil {
+		return []PrimaryKey{}, err
+	}
+
+	return parseKeys(file)
+}
+
+func ParseKeyFiles(names []string) ([]PrimaryKey, error) {
+	result := make([]PrimaryKey, 0)
+
+	for _, name := range names {
+		keys, err := ParseKeyFile(name)
+
+		if err != nil {
+			return []PrimaryKey{}, err
+		}
+
+		for _, key := range keys {
+			result = append(result, key)
 		}
 	}
 
