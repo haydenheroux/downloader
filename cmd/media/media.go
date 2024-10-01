@@ -20,106 +20,119 @@ func main() {
 				Aliases: []string{"ref", "r"},
 				Usage:   "reference `FILE` for metadata",
 			},
-			&cli.StringSliceFlag{
-				Name:    "input",
-				Aliases: []string{"in", "i"},
-				Usage:   "download resources from input `FILE`",
-			},
-			&cli.BoolFlag{
-				Name:    "keys",
-				Aliases: []string{"k"},
-				Usage:   "input file contains keys",
-			},
-			&cli.BoolFlag{
-				Name:    "list",
-				Aliases: []string{"l"},
-				Usage:   "list reference keys",
-			},
-			&cli.StringFlag{
-				Name:     "downloader",
-				Aliases:  []string{"dl", "d"},
-				Usage:    "download using the downloader named `NAME`",
-				Required: true,
-			},
-			&cli.StringFlag{
-				Name:     "format",
-				Aliases:  []string{"fmt", "f"},
-				Usage:    "output files in the format `FORMAT`",
-				Required: true,
-			},
-			&cli.StringFlag{
-				Name:     "output",
-				Aliases:  []string{"out", "o"},
-				Usage:    "output files in the directory `DIR`",
-				Required: true,
-			},
 		},
-		Action: func(c *cli.Context) error {
-			keys := c.Bool("keys")
-			list := c.Bool("list")
+		Commands: []*cli.Command{
+			{
+				Name:  "list",
+				Usage: "list reference keys",
+				Action: func(c *cli.Context) error {
+					references := c.StringSlice("reference")
 
-			references := c.StringSlice("reference")
-			inputs := c.StringSlice("input")
+					referenceSet, err := resource.ParseFiles(references)
+					if err != nil {
+						return err
+					}
 
-			downloader := c.String("downloader")
-			output := c.String("output")
-			format := c.String("format")
+					for _, key := range referenceSet.PrimaryKeys() {
+						fmt.Println(key)
+					}
+					return nil
+				},
+			},
+			{
+				Name:  "download",
+				Usage: "download resources",
+				Flags: []cli.Flag{
+					&cli.StringSliceFlag{
+						Name:    "input",
+						Aliases: []string{"in", "i"},
+						Usage:   "download resources from input `FILE`",
+					},
+					&cli.BoolFlag{
+						Name:    "keys",
+						Aliases: []string{"k"},
+						Usage:   "input file contains keys",
+					},
+					&cli.StringFlag{
+						Name:     "downloader",
+						Aliases:  []string{"dl", "d"},
+						Usage:    "download using the downloader named `NAME`",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "format",
+						Aliases:  []string{"fmt", "f"},
+						Usage:    "output files in the format `FORMAT`",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "output",
+						Aliases:  []string{"out", "o"},
+						Usage:    "output files in the directory `DIR`",
+						Required: true,
+					},
+				},
+				Action: func(c *cli.Context) error {
+					keys := c.Bool("keys")
 
-			referenceSet, err := resource.ParseFiles(references)
-			if err != nil {
-				return err
-			}
+					references := c.StringSlice("reference")
+					inputs := c.StringSlice("input")
 
-			var inputKeys []resource.PrimaryKey
+					downloader := c.String("downloader")
+					output := c.String("output")
+					format := c.String("format")
 
-			if keys {
-				inputKeys, err = resource.ParseKeyFiles(inputs)
-				if err != nil {
-					return err
-				}
-			} else {
-				inputSet, err := resource.ParseFiles(inputs)
-				if err != nil {
-					return err
-				}
+					referenceSet, err := resource.ParseFiles(references)
+					if err != nil {
+						return err
+					}
 
-				referenceSet.AddAll(inputSet)
+					var inputKeys []resource.PrimaryKey
 
-				inputKeys = inputSet.PrimaryKeys()
-			}
+					if keys {
+						inputKeys, err = resource.ParseKeyFiles(inputs)
+						if err != nil {
+							return err
+						}
+					} else {
+						inputSet, err := resource.ParseFiles(inputs)
+						if err != nil {
+							return err
+						}
 
-			if list {
-				for _, key := range referenceSet.PrimaryKeys() {
-					fmt.Println(key)
-				}
-			}
+						referenceSet.AddAll(inputSet)
 
-			dl := dler.CreateDownloader(downloader, format)
+						inputKeys = inputSet.PrimaryKeys()
+					}
 
-			dl.SetOutputDirectory(output)
+					dl := dler.CreateDownloader(downloader, format)
 
-			if _, err := os.Stat(output); err != nil {
-				if err := os.Mkdir(output, 0777); err != nil {
-					return err
-				}
-			}
+					dl.SetOutputDirectory(output)
 
-			for _, key := range inputKeys {
-				if !referenceSet.ContainsKey(key) {
-					return fmt.Errorf("key %s does not match any reference", key)
-				}
+					if _, err := os.Stat(output); err != nil {
+						if err := os.Mkdir(output, 0777); err != nil {
+							return err
+						}
+					}
 
-				bestResource := referenceSet.Best(key)
+					for _, key := range inputKeys {
+						if !referenceSet.ContainsKey(key) {
+							return fmt.Errorf("key %s does not match any reference", key)
+						}
 
-				log.Printf("started %s\n", dl.OutputLocation(bestResource))
-				err := dl.Download(bestResource)
-				if err != nil {
-					return err
-				}
-				log.Printf("finished %s\n", dl.OutputLocation(bestResource))
-			}
+						bestResource := referenceSet.Best(key)
 
-			return nil
+						log.Printf("started %s\n", dl.OutputLocation(bestResource))
+						err := dl.Download(bestResource)
+						if err != nil {
+							return err
+						}
+						log.Printf("finished %s\n", dl.OutputLocation(bestResource))
+					}
+
+					return nil
+				},
+			},
 		},
 	}
 
